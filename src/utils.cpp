@@ -27,3 +27,12 @@ std::pair<std::string, std::string>	split_param(std::string src)
 	std::string second = src.substr(space, lenSecond - space);
 	return std::make_pair(first, second);
 }
+
+std::string		getPath(std::string src, int pos)
+{
+	int lenStr = pos;
+
+	while (!ft_isspace(src[lenStr]) && src[lenStr] != '{')
+		++lenStr;
+	return src.substr(pos, lenStr - pos);
+}

@@ -1,0 +1,58 @@
+
+server{
+    listen 9000;
+    server_name WebServer;
+    error_page /Users/usavoia/Desktop/example/www/error.html;
+    index index.html;
+    location /
+    {
+
+        root /Users/usavoia/Desktop/example/www;
+        index  index.html;
+        autoindex off;
+        method_allowed GET;
+        body_size 200;
+        exec_cgi /Users/usavoia/Desktop/example/cgi_tester;
+        extension_cgi .bla .php .pl;
+    }
+    location /directory
+    {
+        root /Users/usavoia/Desktop/example/www/YoupiBanane;
+        index youpi.bad_extension;
+        autoindex off;
+        method_allowed GET POST;
+        body_size 200;
+        exec_cgi /Users/usavoia/Desktop/example/cgi_tester;
+        extension_cgi .bla .php .pl;
+    }
+    location /put_test
+    {
+        root /Users/usavoia/Desktop/example/www/put_test;
+    }
+    location /post_body
+    {
+        root /Users/usavoia/Desktop/example/www/x.html;
+        method_allowed POST;
+        body_size 100;
+    }
+}
+
+server {
+
+
+    listen 8081;
+    server_name Hello;
+    index  ./www/index.html;
+    error_page /goinfre/xxxx/webserv/www/error.html;
+
+}
+
+server {
+
+
+    listen 8082;
+
+    index  ./www/index.html;
+    error_page /Users/jiyoonhur/webserv/www/error.html;
+
+}

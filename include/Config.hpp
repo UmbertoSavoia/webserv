@@ -10,9 +10,7 @@ class Config
 		std::string			content;
 		std::vector<Server>	table;
 
-		std::string keywords[10] = { "server", "listen", "location", "server_name",
-									"index", "body_size", "error_page", "method",
-									"root", "autoindex" };
+		std::string keywords[11];
 
 	public:
 		Config(char* filePath);

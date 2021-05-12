@@ -2,22 +2,21 @@
 #define SERVER_HPP
 
 #include "utils.hpp"
+class Locations;
 
 class Server
 {
 	private:
-		int			socket_fd;
-		int			port;
-		std::string	server_name;
-		std::string	index;			//per ora si accetta un solo index
-		std::size_t	body_size;
-		std::string	error_page;
-		std::string	method;			//nelle location o qui?
-		std::string root;
+		int									socket_fd;
+		int									port;
+		std::map<std::string, std::string>	params;
+		std::vector<Locations>				locations;
 
 	public:
 		Server(void);
 		~Server(void);
+		std::map<std::string, std::string>& getParams(void);
+		std::vector<Locations>&				getLocations(void);
 };
 
 #endif
