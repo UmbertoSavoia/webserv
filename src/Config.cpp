@@ -22,20 +22,23 @@ Config::Config(char* filePath)
 
 Config::~Config(void)
 {
-	for (std::size_t i = 0; i < table.size(); ++i)
+	/* for (std::size_t i = 0; i < table.size(); ++i)
 	{
-		std::cout << "Server: " << i + 1 << " - " << table[i].getautoidx() << std::endl;
+		std::cout << "Server: " << i + 1 << " - " << table[i].getautoindex() << std::endl;
 		for (auto i : table[i].getParams())
-		{
 			std::cout << "\t" << i.first << " -- " << i.second << std::endl;
-		}
 		for (auto j : table[i].getLocations())
 		{
-			std::cout << "\t\t-> " << j.getPath() << std::endl;
+			std::cout << "\t\t-> " << j.getPath() << " - "<< j.getautoindex() << std::endl;
 			for (auto k : j.getLocations())
 				std::cout << "\t\t\t" << k.first << " : " << k.second << std::endl;
 		}
-	}
+	} */
+}
+
+std::vector<Server>*	Config::getConfig(void)
+{
+	return &table;
 }
 
 void	Config::parse(void)
@@ -147,11 +150,31 @@ void	Config::check(void)
 				throw Config::ConfigException("Port configuration Error !");
 		}
 	}
+
+	// set autoindex
+	for (int j = 0; j < table.size(); ++j)
+	{
+		std::map<std::string, std::string>::iterator it = table[j].getParams().find("autoindex");
+		std::map<std::string, std::string>::iterator itEnd = table[j].getParams().end();
+
+		if (it != itEnd)
+			if ((*it).second == "on")
+				table[j].getautoindex() = true;
+		for (int i = 0; i < table[j].getLocations().size(); ++i)
+		{
+			std::map<std::string, std::string>::iterator itL = table[j].getLocations()[i].getLocations().find("autoindex");
+			std::map<std::string, std::string>::iterator itEndL = table[j].getLocations()[i].getLocations().end();
+			
+			if (itL != itEndL)
+			{
+				if ((*itL).second == "on")
+					table[j].getLocations()[i].getautoindex() = true;
+			}
+			else
+			{
+				if (table[j].getautoindex() == true)
+					table[j].getLocations()[i].getautoindex() = true;
+			}
+		}
+	}
 }
-	
-	
-	/* 	if ((it = table[j].getParams().find("autoindex")) != itEnd)
-			table[j].getautoidx() = true;
-		if (j == table.size() - 1)
-			if ((it = table[j + 1].getParams().find("autoindex")) != itEnd)
-				table[j + 1].getautoidx() = true; */

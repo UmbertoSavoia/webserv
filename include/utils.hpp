@@ -3,6 +3,14 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <cstdlib>
+#include <ctime>
+#include <signal.h>
+
 #include <exception>
 #include <iostream>
 #include <string>
@@ -12,6 +20,8 @@
 #include "Config.hpp"
 #include "Server.hpp"
 #include "Locations.hpp"
+#include "Handler.hpp"
+#include "Request.hpp"
 
 #define PRINT(x) std::cout << x << std::endl;
 

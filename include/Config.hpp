@@ -15,8 +15,9 @@ class Config
 		Config(char* filePath);
 		~Config(void);
 
-		void	parse(void);
-		void	check(void);
+		void					parse(void);
+		void					check(void);
+		std::vector<Server>*	getConfig(void);
 		
 		class ConfigException : public std::exception
 		{

@@ -15,6 +15,7 @@ class Locations
 		~Locations() { }
 		std::map<std::string, std::string>&	getLocations(void) { return locations; }
 		std::string&						getPath(void) { return path; }
+		bool&								getautoindex(void) { return autoidx; }
 };
 
 #endif
