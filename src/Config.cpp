@@ -1,10 +1,5 @@
 #include "../include/utils.hpp"
 
-const char* Config::ConfigException::what(void) const throw()
-{
-	return ("Error: file configuration");
-}
-
 Config::Config(char* filePath)
 {
 	std::string words[11] = {"listen", "location", "server_name",
@@ -17,7 +12,7 @@ Config::Config(char* filePath)
 	char buf[2024] = {0};
 
 	if ( (fd = open(filePath, O_RDONLY)) == -1 )
-		throw Config::ConfigException();
+		throw Config::ConfigException("Config File missing");
 
 	while (read(fd, buf, 2024))
 		content += buf;
@@ -29,7 +24,7 @@ Config::~Config(void)
 {
 	for (std::size_t i = 0; i < table.size(); ++i)
 	{
-		std::cout << "Server: " << i+1 << std::endl;
+		std::cout << "Server: " << i + 1 << " - " << table[i].getautoidx() << std::endl;
 		for (auto i : table[i].getParams())
 		{
 			std::cout << "\t" << i.first << " -- " << i.second << std::endl;
@@ -50,6 +45,9 @@ void	Config::parse(void)
 	int pos = 0;								//indice della posizione nella stringa
 	int	nServ = 0;
 
+	if (std::count(content.begin(), content.end(), '{') - std::count(content.begin(), content.end(), '}') != 0)
+		throw Config::ConfigException("Mismatching Brackets!");
+
 	while (content[pos])						//loop for servers
 	{
 		if (content[pos] == '}')
@@ -61,7 +59,7 @@ void	Config::parse(void)
 		if (content.substr(pos, 6) == "server")
 			pos += 6;
 		else
-			throw Config::ConfigException();		
+			throw Config::ConfigException("No 'server' block found");		
 
 		while (ft_isspace(content[pos]))
 			++pos;
@@ -70,7 +68,7 @@ void	Config::parse(void)
 			++pos; inServer = true;
 		}
 		else
-			throw Config::ConfigException();
+			 throw Config::ConfigException("No '{' after server keyword");
 
 		while (ft_isspace(content[pos]))
 			++pos;
@@ -131,4 +129,29 @@ void	Config::parse(void)
 		}
 		nServ++;
 	}
+	check();
 }
+
+void	Config::check(void)
+{
+	//	check port
+	for (int j = 0; j < table.size() - 1; ++j)
+	{
+		std::map<std::string, std::string>::iterator itEnd = table[j].getParams().end();
+		std::map<std::string, std::string>::iterator it = table[j].getParams().find("listen");
+		for (int i = j + 1; i < table.size(); ++i)
+		{
+			std::map<std::string, std::string>::iterator itEnd_next = table[i].getParams().end();
+			std::map<std::string, std::string>::iterator it_next = table[i].getParams().find("listen");
+			if ((it == itEnd) || (it_next == itEnd_next) || (*it).second == (*it_next).second)
+				throw Config::ConfigException("Port configuration Error !");
+		}
+	}
+}
+	
+	
+	/* 	if ((it = table[j].getParams().find("autoindex")) != itEnd)
+			table[j].getautoidx() = true;
+		if (j == table.size() - 1)
+			if ((it = table[j + 1].getParams().find("autoindex")) != itEnd)
+				table[j + 1].getautoidx() = true; */

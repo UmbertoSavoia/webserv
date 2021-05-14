@@ -6,6 +6,6 @@ int		main(int ac, char** av)
 		Config conf(av[1]);
 		conf.parse();
 	} catch(const std::exception& e) {
-		std::cerr << e.what() << '\n';
+		std::cerr << e.what() << std::endl;
 	}
 }

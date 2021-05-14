@@ -9,7 +9,6 @@ class Config
 	private:
 		std::string			content;
 		std::vector<Server>	table;
-
 		std::string keywords[11];
 
 	public:
@@ -17,11 +16,15 @@ class Config
 		~Config(void);
 
 		void	parse(void);
-
+		void	check(void);
+		
 		class ConfigException : public std::exception
 		{
+			private:
+				std::string msg;
 			public:
-				const char* what(void) const throw();
+				ConfigException(std::string msg) : msg(msg) {}
+				const char* what(void) const throw() override { return msg.c_str(); }
 		};
 };
 

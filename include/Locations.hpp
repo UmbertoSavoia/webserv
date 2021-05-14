@@ -6,11 +6,12 @@
 class Locations
 {
 	private:
-		std::string path;
+		std::string	path;
+		bool		autoidx;
 		std::map<std::string, std::string> locations;
 
 	public:
-		Locations() : path(), locations() { }
+		Locations() : path(), autoidx(false), locations() { }
 		~Locations() { }
 		std::map<std::string, std::string>&	getLocations(void) { return locations; }
 		std::string&						getPath(void) { return path; }
