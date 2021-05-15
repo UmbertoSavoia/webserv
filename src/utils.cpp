@@ -36,3 +36,14 @@ std::string		getPath(std::string src, int pos)
 		++lenStr;
 	return src.substr(pos, lenStr - pos);
 }
+
+int				get_max_fd(std::vector<Server>* server)
+{
+	int ret = 0;
+	for (int i = 0; i != server->size(); ++i)
+	{
+		if ((*server)[i].getFd() > ret)
+			ret = (*server)[i].getFd();
+	}
+	return ret + 1;
+}
