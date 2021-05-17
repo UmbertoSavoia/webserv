@@ -45,7 +45,7 @@ int				get_max_fd(std::vector<Server>* server)
 		if ((*server)[i].getFd() > ret)
 			ret = (*server)[i].getFd();
 	}
-	return ret + 1;
+	return ret;
 }
 
 void		log(std::string msg)

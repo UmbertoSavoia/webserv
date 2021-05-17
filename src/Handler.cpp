@@ -21,56 +21,109 @@ Handler::~Handler(void)
 void			Handler::init(void)
 {
 	FD_ZERO(&readfds);
-	FD_ZERO(&master_readfds);
+	FD_ZERO(&writefds);
+	FD_ZERO(&cp_readfds);
+	FD_ZERO(&cp_writefds);
 
 	for (int i = 0; i < servers->size(); ++i)
 	{
 		(*servers)[i].init();
-		FD_SET((*servers)[i].getFd(), &master_readfds);
+		FD_SET((*servers)[i].getFd(), &readfds);
 	}
 }
 
 void			Handler::serv(void)
 {
-	struct sockaddr_in	client;
-	int					fd_client;
-	int					socklen = sizeof(sockaddr_in);
-	char				buf[1025] = {0};
+	char				buf[32000] = {0};
 	std::string			message = "";
 	int					bytes_read = 0;
+	int					maxFDs = get_max_fd(servers);
+	std::string			response = "HTTP/1.1 200 OK\r\n \
+						Server: WebServ\r\n \
+						Connection: close\r\n \
+						Content-Length : 169\r\n\r\n \
+						<html><body><center><h2>PORCHIDDDIO</h2></center></body></html>";
 
 	while (1)
 	{
-		readfds = master_readfds;
-		select(FD_SETSIZE, &readfds, 0, 0, 0);
+		cp_readfds = readfds;
+		cp_writefds = writefds;
+
+		select(maxFDs + 1, &cp_readfds, &cp_writefds, 0, 0);
 
 		for (int i = 0; i < servers->size(); ++i)
 		{
-			if (FD_ISSET((*servers)[i].getFd(), &readfds))
+			if (FD_ISSET((*servers)[i].getFd(), &cp_readfds))
 			{
-				fd_client = accept((*servers)[i].getFd(), (struct sockaddr*)&client, (socklen_t*)&socklen);
-				break;
+				Client* tmpClient = new Client((*servers)[i].getFd());
+				tmpClient->acceptClient(&readfds, &writefds, maxFDs);
+				FD_SET(tmpClient->getFD(), &readfds);
+				clients.push_back(tmpClient);
 			}
 		}
 
-		while ((bytes_read = recv(fd_client, buf, 1024, 0)) > 0 )
+		for (std::vector<Client*>::iterator it(clients.begin()); it != clients.end(); ++it)
 		{
-			buf[bytes_read] = 0;
-			message += buf;
-			if (message.size() >= 4 && message.at(message.size()-4) == '\r' && message.at(message.size()-3) == '\n' &&
-			message.at(message.size()-2) == '\r' && message.at(message.size()-1) == '\n')
+			if (FD_ISSET((*it)->getFD(), &cp_readfds))
 			{
-				break; //da pulire
+				if ((bytes_read = read((*it)->getFD(), buf, 32000)) > 0 )
+				{
+					buf[bytes_read] = 0;
+					message += buf;
+					//if (message.size() >= 4 && message.at(message.size()-4) == '\r' && message.at(message.size()-3) == '\n' &&
+					//message.at(message.size()-2) == '\r' && message.at(message.size()-1) == '\n')
+					//{
+					//	//break; //da pulire
+					//}
+					FD_SET((*it)->getFD(), &writefds);
+					FD_CLR((*it)->getFD(), &readfds);
+				}
+				else// if (bytes_read < 0)
+				{
+					FD_CLR((*it)->getFD(), &readfds);
+					FD_CLR((*it)->getFD(), &writefds);
+					delete *it;
+					clients.erase(it);
+					log("Client disconnected");
+					maxFDs--;
+					break;
+				}
+				Request req(message);
+				message.clear();
+			}
+
+			if (FD_ISSET((*it)->getFD(), &cp_writefds) /* && (*it)->status == Client::RESPONSE */)
+			{
+				//---------------------------------------------------------------------------------------
+				//int ret = write((*it)->getFD(), response.c_str(), response.size());
+				int ret = write((*it)->getFD(), (*it)->getMsg().c_str(), (*it)->getMsg().size());
+				if (ret <= 0)
+				{
+					FD_CLR((*it)->getFD(), &readfds);
+					FD_CLR((*it)->getFD(), &writefds);
+					delete *it;
+					clients.erase(it);
+					log("Client disconnected");
+					maxFDs--;
+					break;
+				}
+				if ((unsigned long)ret < (*it)->getMsg().length())
+					(*it)->getMsg() = (*it)->getMsg().substr(ret);
+				else
+				{
+					FD_CLR((*it)->getFD(), &writefds);
+					(*it)->getMsg().clear();
+					delete *it;
+					clients.erase(it);
+					log("Client disconnected");
+					maxFDs--;
+					break;
+				}
+				//---------------------------------------------------------------------------------------
+				//(*it)->status = Client::END;
+				//FD_SET((*it)->getFD(), &readfds);
+				//FD_CLR((*it)->getFD(), &writefds);
 			}
 		}
-		Request req(message);
-
-		//---------------------------------------------------------------------------------------
-		std::string response = "HTTP/1.1 200 OK\r\nServer: WebServ\r\nConnection: close\r\n\r\n";
-					response += "<html><body><center><h2>PORCO DIO</h2></center></body></html>";
-					send(fd_client, response.c_str(), response.size(), 0);
-		//---------------------------------------------------------------------------------------
-		close(fd_client);
-		message.clear();
 	}
 }

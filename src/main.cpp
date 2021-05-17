@@ -9,7 +9,7 @@ void		closeFDs(int)
 	for ( ; it != ite; ++it)
 		close(it->getFd());
 	std::cout << "\b\b";
-	log("Shoutting down servers...");
+	log("Shutting down servers...");
 	exit(0);
 }
 

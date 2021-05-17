@@ -1,6 +1,6 @@
 
 server{
-    listen 7000;
+    listen 7003;
     server_name WebServer;
     error_page /Users/usavoia/Desktop/example/www/error.html;
     index index.html;
@@ -40,7 +40,7 @@ server{
 server {
 
 
-    listen 7001;
+    listen 7004;
     server_name Hello;
     index  ./www/index.html;
     error_page /goinfre/xxxx/webserv/www/error.html;
@@ -50,7 +50,7 @@ server {
 server {
 
 
-    listen 7002;
+    listen 7005;
 
     index  ./www/index.html;
     error_page /Users/jiyoonhur/webserv/www/error.html;

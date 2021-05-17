@@ -3,12 +3,17 @@
 
 #include "utils.hpp"
 
+class Client;
+
 class Handler
 {
 	private:
 		std::vector<Server>*	servers;
-		fd_set					master_readfds;
+		std::vector<Client*>	clients;
 		fd_set					readfds;
+		fd_set					writefds;
+		fd_set					cp_readfds;
+		fd_set					cp_writefds;
 
 	public:
 		Handler(std::vector<Server>* servers);
