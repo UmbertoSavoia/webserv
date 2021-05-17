@@ -32,7 +32,7 @@ class Server
 			fd = socket(AF_INET, SOCK_STREAM, 0);
 			setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int));
 			bind(fd, (struct sockaddr*) &(addr), sizeof(addr));
-			listen(fd, 4096);
+			listen(fd, 256);
 		}
 };
 
