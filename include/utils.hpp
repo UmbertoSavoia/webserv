@@ -10,7 +10,9 @@
 #include <errno.h>
 #include <cstdlib>
 #include <ctime>
+#include <cstring>
 #include <signal.h>
+#include <algorithm>
 
 #include <exception>
 #include <iostream>
