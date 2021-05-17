@@ -47,3 +47,17 @@ int				get_max_fd(std::vector<Server>* server)
 	}
 	return ret + 1;
 }
+
+void		log(std::string msg)
+{
+	struct timeval	tv;
+	time_t			nowtime;
+	struct tm		*nowtm;
+	char			buf[100];
+
+	gettimeofday(&tv, 0);
+	nowtime = tv.tv_sec;
+	nowtm = localtime(&nowtime);
+	strftime(buf, sizeof(buf), "%c", nowtm);
+	std::cout << "[" << buf << "] " << msg<< std::endl;
+}

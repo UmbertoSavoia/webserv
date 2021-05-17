@@ -8,7 +8,8 @@ void		closeFDs(int)
 	std::vector<Server>::iterator ite = p->getConfig()->end();
 	for ( ; it != ite; ++it)
 		close(it->getFd());
-	std::cout << "\b\bFine!!!" << std::endl;
+	std::cout << "\b\b";
+	log("Shoutting down servers...");
 	exit(0);
 }
 
@@ -19,6 +20,7 @@ int		main(int ac, char** av)
 	signal(SIGINT, &closeFDs);
 
 	try {
+		log("Parsing of configuration file");
 		conf.parse();
 	} catch(const std::exception& e) {
 		std::cerr << e.what() << std::endl;
@@ -26,5 +28,6 @@ int		main(int ac, char** av)
 	
 	Handler handler(conf.getConfig());
 	handler.init();
+	log("Server is starting...");
 	handler.serv();
 }

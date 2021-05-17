@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <arpa/inet.h>
 #include <errno.h>
 #include <cstdlib>
@@ -31,5 +32,6 @@ std::pair<std::string, bool>		iskeywords(std::string src, std::string keywords[]
 std::pair<std::string, std::string>	split_param(std::string src);
 std::string							getPath(std::string src, int pos);
 int									get_max_fd(std::vector<Server>* server);
+void								log(std::string msg);
 
 #endif
