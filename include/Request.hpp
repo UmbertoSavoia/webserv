@@ -19,6 +19,14 @@ class Request
 			std::size_t sp2 = request.find(" ", sp1 + 1);
 			value = request.substr(sp1 + 1, sp2 - sp1);
 			header.insert(std::pair<std::string, std::string>("uri", value));
+
+            sp1 = request.find("\r\n\r\n");
+            if ( request.size() != (sp1 + 4) )
+            {
+                sp1 += 4;
+			    value = request.substr(sp1, request.size() - sp1);
+			    header.insert(std::pair<std::string, std::string>("body", value));
+            }
 		}
 		~Request(void) {}
 

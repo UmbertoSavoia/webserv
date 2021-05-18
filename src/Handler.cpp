@@ -84,6 +84,7 @@ void			Handler::serv(void)
 				std::string msg = "Client " + std::to_string((*it)->getFD()) + " had send a request";
 				log(msg);
 				message.clear();
+				Response(req.getHeader(), (*servers)[serverIDX]);
 			}
 
 			if (FD_ISSET((*it)->getFD(), &cp_writefds))

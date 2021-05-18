@@ -26,6 +26,7 @@
 #include "Handler.hpp"
 #include "Request.hpp"
 #include "Client.hpp"
+#include "Response.hpp"
 
 #define PRINT(x) std::cout << x << std::endl;
 

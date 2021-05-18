@@ -8,14 +8,15 @@ class Response
     private:
         std::string response;
         std::map<std::string, std::string> header;
-        Server* server;
+        Server server;
 
 
     public:
-        Response(std::map<std::string, std::string> header, Server* server);
+        Response(std::map<std::string, std::string> header, Server& server);
         ~Response();
 
-        std::string getResponse(void) { return response; }
+        void        buildResponse(void);
+        std::string getResponse(void);
 };
 
 #endif
