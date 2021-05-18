@@ -53,6 +53,6 @@ server {
     listen 7005;
 
     index  ./www/index.html;
-    error_page /Users/jiyoonhur/webserv/www/error.html;
+    error_page /Users/usavoia/webserv/www/error.html;
 
 }
