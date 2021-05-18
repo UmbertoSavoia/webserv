@@ -38,11 +38,7 @@ void			Handler::serv(void)
 	std::string			message = "";
 	int					bytes_read = 0;
 	int					maxFDs = get_max_fd(servers);
-	std::string			response = "HTTP/1.1 200 OK\r\n \
-						Server: WebServ\r\n \
-						Connection: close\r\n \
-						Content-Length : 169\r\n\r\n \
-						<html><body><center><h2>PORCHIDDDIO</h2></center></body></html>";
+	int                 serverIDX = 0;
 
 	while (1)
 	{
@@ -56,9 +52,10 @@ void			Handler::serv(void)
 			if (FD_ISSET((*servers)[i].getFd(), &cp_readfds))
 			{
 				Client* tmpClient = new Client((*servers)[i].getFd());
-				tmpClient->acceptClient(&readfds, &writefds, maxFDs);
+				tmpClient->acceptClient(maxFDs);
 				FD_SET(tmpClient->getFD(), &readfds);
 				clients.push_back(tmpClient);
+				serverIDX = i;
 			}
 		}
 
@@ -70,15 +67,10 @@ void			Handler::serv(void)
 				{
 					buf[bytes_read] = 0;
 					message += buf;
-					//if (message.size() >= 4 && message.at(message.size()-4) == '\r' && message.at(message.size()-3) == '\n' &&
-					//message.at(message.size()-2) == '\r' && message.at(message.size()-1) == '\n')
-					//{
-					//	//break; //da pulire
-					//}
 					FD_SET((*it)->getFD(), &writefds);
 					FD_CLR((*it)->getFD(), &readfds);
 				}
-				else// if (bytes_read < 0)
+				else
 				{
 					FD_CLR((*it)->getFD(), &readfds);
 					FD_CLR((*it)->getFD(), &writefds);
@@ -89,13 +81,14 @@ void			Handler::serv(void)
 					break;
 				}
 				Request req(message);
+				std::string msg = "Client " + std::to_string((*it)->getFD()) + " had send a request";
+				log(msg);
 				message.clear();
 			}
 
-			if (FD_ISSET((*it)->getFD(), &cp_writefds) /* && (*it)->status == Client::RESPONSE */)
+			if (FD_ISSET((*it)->getFD(), &cp_writefds))
 			{
 				//---------------------------------------------------------------------------------------
-				//int ret = write((*it)->getFD(), response.c_str(), response.size());
 				int ret = write((*it)->getFD(), (*it)->getMsg().c_str(), (*it)->getMsg().size());
 				if (ret <= 0)
 				{
@@ -120,9 +113,6 @@ void			Handler::serv(void)
 					break;
 				}
 				//---------------------------------------------------------------------------------------
-				//(*it)->status = Client::END;
-				//FD_SET((*it)->getFD(), &readfds);
-				//FD_CLR((*it)->getFD(), &writefds);
 			}
 		}
 	}

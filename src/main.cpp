@@ -15,9 +15,24 @@ void		closeFDs(int)
 
 int		main(int ac, char** av)
 {
-	Config conf(av[1]);
+    std::string r;
+    std::string file;
+
+    if (ac < 2)
+    {
+        std::cout << "No input file specified, do you want the default config [Y/n]?" << std::endl;
+        std::cin >> r;
+        if (r.at(0) == 'Y' || r.at(0) == 'y')
+            file = "config/config_default";
+        else
+            return 0;
+    } else {
+        file = av[1];
+    }
+	Config conf(file.c_str());
 	p = &conf;
 	signal(SIGINT, &closeFDs);
+    signal(SIGTERM, &closeFDs);
 
 	try {
 		log("Parsing of configuration file");

@@ -1,6 +1,6 @@
 #include "../include/utils.hpp"
 
-Config::Config(char* filePath)
+Config::Config(const char* filePath)
 {
 	std::string words[11] = {"listen", "location", "server_name",
 							"index", "body_size", "error_page", "method",

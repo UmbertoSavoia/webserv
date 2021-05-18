@@ -12,7 +12,7 @@ class Client
 		std::string			msg;
 	
 	public:
-		Client(int serverFD) : fd(-1), serverFD(serverFD), status(0)
+		Client(int serverFD) : fd(-1), serverFD(serverFD)
 		{
 			memset(&client, 0, sizeof(client));
 			msg =		"HTTP/1.1 200 OK\r\n \
@@ -22,11 +22,10 @@ class Client
 						<html><body><center><h2>PORCHIDDDIO</h2></center></body></html>";
 		}
 		~Client()														{ close(fd); }
-		int				status;
 		int				getFD()											{ return fd; }
 		std::string&	getMsg()										{ return msg; }
 
-		void	acceptClient(fd_set *read, fd_set *write, int &maxFDs)
+		void	acceptClient(int &maxFDs)
 		{
 			int		socklen = sizeof(sockaddr_in);
 
@@ -35,13 +34,6 @@ class Client
 			if (fd > maxFDs)
 				maxFDs = fd;
 		}
-
-		enum statuses
-		{
-			START,
-			RESPONSE,
-			END
-		};
 };
 
 #endif

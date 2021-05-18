@@ -12,7 +12,7 @@ class Config
 		std::string keywords[11];
 
 	public:
-		Config(char* filePath);
+		Config(const char* filePath);
 		~Config(void);
 
 		void					parse(void);
