@@ -19,8 +19,7 @@ class Handler
 		Handler(std::vector<Server>* servers);
 		~Handler(void);
 		void			init(void);
-
-    void			serv(void);
+		void			serv(void);
 };
 
 #endif

@@ -15,14 +15,14 @@ void		closeFDs(int)
 
 int		main(int ac, char** av)
 {
-    std::string r;
+    char r = 0;
     std::string file;
 
     if (ac < 2)
     {
         std::cout << "No input file specified, do you want the default config [Y/n]?" << std::endl;
-        std::cin >> r;
-        if (r.at(0) == 'Y' || r.at(0) == 'y')
+        r = std::getchar();
+        if (r == 'Y' || r == 'y')
             file = "config/config_default";
         else
             return 0;

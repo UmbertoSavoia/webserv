@@ -27,6 +27,7 @@
 #include "Request.hpp"
 #include "Client.hpp"
 #include "Response.hpp"
+#include "Headers.hpp"
 
 #define PRINT(x) std::cout << x << std::endl;
 
@@ -36,5 +37,6 @@ std::pair<std::string, std::string>	split_param(std::string src);
 std::string							getPath(std::string src, int pos);
 int									get_max_fd(std::vector<Server>* server);
 void								log(std::string msg);
+void	                            trim(std::string &str);
 
 #endif

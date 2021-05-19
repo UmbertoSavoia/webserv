@@ -6,17 +6,23 @@
 class Response
 {
     private:
-        std::string response;
-        std::map<std::string, std::string> header;
-        Server server;
+        std::string                         response;
+        std::map<std::string, std::string>  header;
+        Server                              server;
+        std::string                         uri;
 
 
     public:
         Response(std::map<std::string, std::string> header, Server& server);
         ~Response();
 
-        void        buildResponse(void);
-        std::string getResponse(void);
+        void                            buildResponse(void);
+        std::pair<std::string, bool>    isLocation(std::vector<Locations>& locations, std::string check);
+        std::string                     getResponse(void);
+		void                            method_head();
+		void                            method_get();
+		void                            method_post();
+		void                            method_put();
 };
 
 #endif

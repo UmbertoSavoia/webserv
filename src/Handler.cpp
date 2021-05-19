@@ -24,11 +24,14 @@ void			Handler::init(void)
 	FD_ZERO(&writefds);
 	FD_ZERO(&cp_readfds);
 	FD_ZERO(&cp_writefds);
+	std::string log_msg;
 
 	for (int i = 0; i < servers->size(); ++i)
 	{
 		(*servers)[i].init();
 		FD_SET((*servers)[i].getFd(), &readfds);
+		log_msg = "Opening port :" + (*servers)[i].getParams().find("listen")->second;
+		log(log_msg);
 	}
 }
 
@@ -84,7 +87,8 @@ void			Handler::serv(void)
 				std::string msg = "Client " + std::to_string((*it)->getFD()) + " had send a request";
 				log(msg);
 				message.clear();
-				Response(req.getHeader(), (*servers)[serverIDX]);
+				Response response(req.getHeader(), (*servers)[serverIDX]);
+				(*it)->getMsg() = response.getResponse();
 			}
 
 			if (FD_ISSET((*it)->getFD(), &cp_writefds))

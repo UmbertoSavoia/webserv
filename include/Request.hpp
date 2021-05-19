@@ -17,7 +17,7 @@ class Request
 			header.insert(std::pair<std::string, std::string>("method", value));
 
 			std::size_t sp2 = request.find(" ", sp1 + 1);
-			value = request.substr(sp1 + 1, sp2 - sp1);
+			value = request.substr(sp1 + 1, sp2 - sp1 - 1);
 			header.insert(std::pair<std::string, std::string>("uri", value));
 
             sp1 = request.find("\r\n\r\n");

@@ -25,6 +25,8 @@ std::pair<std::string, std::string>	split_param(std::string src)
 	while (src[lenSecond] != ';' && src[lenSecond] != '\n' && src[lenSecond] != ' ')
 		++lenSecond;
 	std::string second = src.substr(space, lenSecond - space);
+	trim(first);
+	trim(second);
 	return std::make_pair(first, second);
 }
 
@@ -60,4 +62,12 @@ void		log(std::string msg)
 	nowtm = localtime(&nowtime);
 	strftime(buf, sizeof(buf), "%c", nowtm);
 	std::cout << "[" << buf << "] " << msg<< std::endl;
+}
+
+void	trim(std::string &str)
+{
+	int i = 0;
+	str.erase(0, str.find_first_not_of(" "));
+	while (str.back() == ' ')
+		str.erase(str.back());
 }
