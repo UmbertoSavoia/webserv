@@ -26,6 +26,8 @@ void        Response::buildResponse(void)
 		uri = server.getParams().find("root")->second;
 	if (check.second == true)
 		uri = check.first;
+	else
+		uri += header.find("uri")->second;
 	if ( header.find("method") != header.end() )
 		method = header.find("method")->second;
 
