@@ -70,3 +70,29 @@ void	trim(std::string &str)
 	while (str.back() == ' ')
 		str.erase(str.back());
 }
+
+std::string	errorPage(std::string numCode, std::string description)
+{
+	std::string ret = "	<html> <head></head> <body> <center> \
+						<h1> " + numCode + " <br> " + description + " </h1> \
+						</center> </body> </html> ";
+	return ret;
+}
+
+std::string	autoindexGenerator(std::string path)
+{
+	DIR *dir = opendir(path.c_str());
+	struct dirent *dp;
+	std::string ret = "<html><head><title>Index of ";
+				ret += path + "</title></head><body><h1>Index of " + path + "</h1><hr>";
+
+	while ((dp = readdir(dir)) != 0)
+	{
+		if (dp->d_name[0] == '.')
+			continue ;
+		ret += "<a href=\"" + path + "/" + dp->d_name + "\">" + dp->d_name + "</a><br>";
+	}
+
+	ret += "<hr></body></html>";
+	return ret;
+}

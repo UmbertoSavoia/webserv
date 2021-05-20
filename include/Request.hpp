@@ -6,8 +6,8 @@
 class Request
 {
 	private:
-		std::string                         request;
-		std::map<std::string, std::string>  header;
+		std::string							request;
+		std::map<std::string, std::string>	header;
 
 	public:
 		Request(std::string request) : request(request)
@@ -20,17 +20,17 @@ class Request
 			value = request.substr(sp1 + 1, sp2 - sp1 - 1);
 			header.insert(std::pair<std::string, std::string>("uri", value));
 
-            sp1 = request.find("\r\n\r\n");
-            if ( request.size() != (sp1 + 4) )
-            {
-                sp1 += 4;
-			    value = request.substr(sp1, request.size() - sp1);
-			    header.insert(std::pair<std::string, std::string>("body", value));
-            }
+			sp1 = request.find("\r\n\r\n");
+			if ( request.size() != (sp1 + 4) )
+			{
+				sp1 += 4;
+				value = request.substr(sp1, request.size() - sp1);
+				header.insert(std::pair<std::string, std::string>("body", value));
+			}
 		}
 		~Request(void) {}
 
-        std::map<std::string, std::string>      getHeader(void) { return header; }
+		std::map<std::string, std::string>		getHeader(void) { return header; }
 };
 
 #endif

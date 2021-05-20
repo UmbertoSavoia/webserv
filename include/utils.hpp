@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <dirent.h>
 #include <cstdlib>
 #include <ctime>
 #include <cstring>
@@ -38,6 +39,8 @@ std::pair<std::string, std::string>	split_param(std::string src);
 std::string							getPath(std::string src, int pos);
 int									get_max_fd(std::vector<Server>* server);
 void								log(std::string msg);
-void	                            trim(std::string &str);
+void								trim(std::string &str);
+std::string							errorPage(std::string numCode, std::string description);
+std::string							autoindexGenerator(std::string path);
 
 #endif

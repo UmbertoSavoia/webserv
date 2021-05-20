@@ -2,7 +2,7 @@
 
 Response::Response(std::map<std::string, std::string> header, Server& server) : header(header), server(server)
 {
-    buildResponse();
+	buildResponse();
 }
 
 Response::~Response() {}
@@ -60,7 +60,6 @@ void		 Response::buildResponse(void)
 
 void		Response::method_head()
 {
- 	PRINT("head")
 	struct stat buffer;
 	int status = 0;
 
@@ -97,132 +96,94 @@ void		Response::method_head()
 		{
 			Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtim.tv_sec);
 			response = rsp_header.getHeader();
-		//	if (autoidx == true )
-				// crea autoindex
-		//	else
-				// errore 403 Forbidden
 		}
 	}
-
 }
 
 void		Response::method_get()
 {
-	PRINT("get")
-	/*struct stat buffer;
+	struct stat buffer;
 	int status = 0;
-	int fd = 0;
-	bool flag = false;
+	std::string body = "";
+	char buf[32000] = {0};
 
-	// Costruzione Header
 	status = lstat(uri.c_str(), &buffer); // 0 se tutto ok, sennò -1
 	if (status == -1)
 	{
-		Headers rsp_header("404 Not Found", 0, uri, 0);
+		body = errorPage("404", "Page Not Found");
+		Headers rsp_header("404 Not Found", body.size(), uri, 0);
 		response = rsp_header.getHeader();
+		response += body;
 	}
-	else
+	else if ((buffer.st_mode & S_IFMT) == S_IFREG) // FILE
 	{
-		Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec - 7200);
-		response = rsp_header.getHeader();
-		flag = true;
-	}
+		int fd = open(uri.c_str(), O_RDONLY);
+		int bytes = 0;
 
-	// Attaccare body alla response
-	std::pair<std::string, bool> check = isIndex(server.getLocations(), header.find("index")->second);
-	if (flag)
+		Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtim.tv_sec);
+		response = rsp_header.getHeader();
+		while ((bytes = read(fd, buf, 32000)) > 0) {
+			buf[bytes] = 0;
+			body += buf;
+		}
+		close(fd);
+		response += body;
+	}
+	else if ((buffer.st_mode & S_IFMT) == S_IFDIR) // CARTELLA
 	{
-		if (check.second == true)
+		std::pair<std::string, bool> check = isIndex(server.getLocations(), header.find("uri")->second);
+
+		if ( check.second == true )
 		{
-			std::string path = uri + check.first;
-			char buf = 0;
-			int	ret = 0;
-			if ((fd = open(path.c_str(), fd, O_RDONLY)) == -1)
-				flag = false;
+			uri += check.first;
+			if ( !(status = lstat(uri.c_str(), &buffer)) )
+			{
+				int fd = open(uri.c_str(), O_RDONLY);
+				int bytes = 0;
+
+				Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtim.tv_sec);
+				response = rsp_header.getHeader();
+				while ((bytes = read(fd, buf, 32000)) > 0) {
+					buf[bytes] = 0;
+					body += buf;
+				}
+				close(fd);
+				response += body;
+			}
 			else
 			{
-				while ((ret = read(fd, &buf, 1)) > 0)
-					response += buf;
-				if (ret == -1)
-					flag = false; // ERRORE DI READ, INSERIRE ECCEZIONE ADEGUATA
+				body = errorPage("404", "Page Not Found");
+				Headers rsp_header("404 Not Found", body.size(), uri, 0);
+				response = rsp_header.getHeader();
+				response += body;
 			}
 		}
 		else
 		{
-			std::string path = uri + "index.html";
-			char buf = 0;
-			int	ret = 0;
-			if ((fd = open(path.c_str(), fd, O_RDONLY)) == -1)
-				flag = false;
-			else
+			if (autoidx == true )	// crea autoindex
 			{
-				while ((ret = read(fd, &buf, 1)) > 0)
-					response += buf;
-				if (ret == -1)
-					flag = false; // ERRORE DI READ, INSERIRE ECCEZIONE ADEGUATA
+				body = autoindexGenerator(uri);
+				Headers rsp_header("200 OK", body.size(), uri, 0);
+				response = rsp_header.getHeader();
+				response += body;
 			}
-			PRINT(response)
+			else	// errore 403 Forbidden
+			{
+				body = errorPage("403", "Forbidden");
+				Headers rsp_header("403 Forbidden", body.size(), uri, 0);
+				response = rsp_header.getHeader();
+				response += body;
+			}
 		}
 	}
-	if (!flag)
-	{
-		PRINT("STO NEL 404")
-		size_t pos = 0;
-		char buf = 0;
-		int	ret = 0;
-		if ((pos = response.find("200 OK")) != std::string::npos)
-		{
-			response.replace(pos, 6, "404 Not Found");
-		}
-		if ((fd = open("/Users/cromalde/Desktop/webserv/www/error.html", fd, O_RDONLY)) == -1)
-			flag = false; // ERRORE DI OPEN, INSERIRE ECCEZIONE ADEGUATA
-		else
-		{
-			while ((ret = read(fd, &buf, 1)) > 0)
-				response += buf;
-			if (ret == -1)
-				flag = false; // ERRORE DI READ, INSERIRE ECCEZIONE ADEGUATA
-			PRINT(response)
-		}
-	}*/
 }
 
 void		Response::method_post()
 {
-/* 	PRINT("post")
-	struct stat buffer;
-	int status = 0;
-
-	// Costruzione Header
-	status = lstat(uri.c_str(), &buffer); // 0 se tutto ok, sennò -1
-	if (status == -1)
-	{
-		Headers rsp_header("404 KO", 0, uri, 0);
-		response = rsp_header.getHeader();
-	}
-	else
-	{
-		Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec - 7200);
-		response = rsp_header.getHeader();
-	} */
+	PRINT("post")
 }
 
 void		Response::method_put()
 {
-/* 	PRINT("put")
-	struct stat buffer;
-	int status = 0;
-
-	// Costruzione Header
-	status = lstat(uri.c_str(), &buffer); // 0 se tutto ok, sennò -1
-	if (status == -1)
-	{
-		Headers rsp_header("404 KO", 0, uri, 0);
-		response = rsp_header.getHeader();
-	}
-	else
-	{
-		Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec - 7200);
-		response = rsp_header.getHeader();
-	} */
+	PRINT("put")
 }

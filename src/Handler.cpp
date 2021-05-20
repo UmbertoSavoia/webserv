@@ -40,7 +40,7 @@ void			Handler::serv(void)
 	char				buf[32000] = {0};
 	std::string			message = "";
 	int					bytes_read = 0;
-	int                 serverIDX = 0;
+	int					serverIDX = 0;
 	struct	timeval		tv;
 
 	while (1)

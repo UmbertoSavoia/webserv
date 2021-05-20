@@ -15,24 +15,24 @@ void		closeFDs(int)
 
 int		main(int ac, char** av)
 {
-    char r = 0;
-    std::string file;
+	char r = 0;
+	std::string file;
 
-    if (ac < 2)
-    {
-        std::cout << "No input file specified, do you want the default config [Y/n]?" << std::endl;
-        r = std::getchar();
-        if (r == 'Y' || r == 'y')
-            file = "config/config_default";
-        else
-            return 0;
-    } else {
-        file = av[1];
-    }
+	if (ac < 2)
+	{
+		std::cout << "No input file specified, do you want the default config [Y/n]?" << std::endl;
+		r = std::getchar();
+		if (r == 'Y' || r == 'y')
+			file = "config/config_default";
+		else
+			return 0;
+	} else {
+		file = av[1];
+	}
 	Config conf(file.c_str());
 	p = &conf;
 	signal(SIGINT, &closeFDs);
-    signal(SIGTERM, &closeFDs);
+	signal(SIGTERM, &closeFDs);
 
 	try {
 		log("Parsing of configuration file");
@@ -40,7 +40,7 @@ int		main(int ac, char** av)
 	} catch(const std::exception& e) {
 		std::cerr << e.what() << std::endl;
 	}
-	
+
 	Handler handler(conf.getConfig());
 	handler.init();
 	log("Server is starting...");
