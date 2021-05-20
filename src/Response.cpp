@@ -72,7 +72,7 @@ void		Response::method_head()
 	}
 	else if ((buffer.st_mode & S_IFMT) == S_IFREG) // FILE
 	{
-		Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec);
+		Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtim.tv_sec);
 		response = rsp_header.getHeader();
 	}
 	else if ((buffer.st_mode & S_IFMT) == S_IFDIR) // CARTELLA
@@ -84,7 +84,7 @@ void		Response::method_head()
 			uri += check.first;
 			if ( !(status = lstat(uri.c_str(), &buffer)) )
 			{
-				Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec);
+				Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtim.tv_sec);
 				response = rsp_header.getHeader();
 			}
 			else
@@ -95,7 +95,7 @@ void		Response::method_head()
 		}
 		else
 		{
-			Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec);
+			Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtim.tv_sec);
 			response = rsp_header.getHeader();
 		//	if (autoidx == true )
 				// crea autoindex

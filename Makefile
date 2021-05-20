@@ -3,7 +3,7 @@
 
 NAME		=	webserv
 CXX			=	clang++
-CXXFLAGS	=	-std=c++11 -g#-Wall -Wextra -Werror
+CXXFLAGS	=	-std=c++11 -g -Wall -Wextra -Werror
 
 MKDIR		=	mkdir -p
 RM			=	rm -f

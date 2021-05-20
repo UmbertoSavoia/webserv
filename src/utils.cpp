@@ -42,7 +42,7 @@ std::string		getPath(std::string src, int pos)
 int				get_max_fd(std::vector<Server>* server)
 {
 	int ret = 0;
-	for (int i = 0; i != server->size(); ++i)
+	for (std::size_t i = 0; i != server->size(); ++i)
 	{
 		if ((*server)[i].getFd() > ret)
 			ret = (*server)[i].getFd();
@@ -66,7 +66,6 @@ void		log(std::string msg)
 
 void	trim(std::string &str)
 {
-	int i = 0;
 	str.erase(0, str.find_first_not_of(" "));
 	while (str.back() == ' ')
 		str.erase(str.back());

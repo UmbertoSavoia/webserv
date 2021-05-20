@@ -26,7 +26,7 @@ void			Handler::init(void)
 	FD_ZERO(&cp_writefds);
 	std::string log_msg;
 
-	for (int i = 0; i < servers->size(); ++i)
+	for (std::size_t i = 0; i < servers->size(); ++i)
 	{
 		(*servers)[i].init();
 		FD_SET((*servers)[i].getFd(), &readfds);
@@ -50,7 +50,7 @@ void			Handler::serv(void)
 
 		select(FD_SETSIZE, &cp_readfds, &cp_writefds, 0, 0);
 
-		for (int i = 0; i < servers->size(); ++i)
+		for (std::size_t i = 0; i < servers->size(); ++i)
 		{
 			if (FD_ISSET((*servers)[i].getFd(), &cp_readfds))
 			{

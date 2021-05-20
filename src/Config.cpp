@@ -62,7 +62,7 @@ void	Config::parse(void)
 		if (content.substr(pos, 6) == "server")
 			pos += 6;
 		else
-			throw Config::ConfigException("No 'server' block found");		
+			throw Config::ConfigException("No 'server' block found");
 
 		while (ft_isspace(content[pos]))
 			++pos;
@@ -138,11 +138,11 @@ void	Config::parse(void)
 void	Config::check(void)
 {
 	//	check port
-	for (int j = 0; j < table.size() - 1; ++j)
+	for (std::size_t j = 0; j < table.size() - 1; ++j)
 	{
 		std::map<std::string, std::string>::iterator itEnd = table[j].getParams().end();
 		std::map<std::string, std::string>::iterator it = table[j].getParams().find("listen");
-		for (int i = j + 1; i < table.size(); ++i)
+		for (std::size_t i = j + 1; i < table.size(); ++i)
 		{
 			std::map<std::string, std::string>::iterator itEnd_next = table[i].getParams().end();
 			std::map<std::string, std::string>::iterator it_next = table[i].getParams().find("listen");
@@ -152,7 +152,7 @@ void	Config::check(void)
 	}
 
 	// set autoindex
-	for (int j = 0; j < table.size(); ++j)
+	for (std::size_t j = 0; j < table.size(); ++j)
 	{
 		std::map<std::string, std::string>::iterator it = table[j].getParams().find("autoindex");
 		std::map<std::string, std::string>::iterator itEnd = table[j].getParams().end();
@@ -160,11 +160,11 @@ void	Config::check(void)
 		if (it != itEnd)
 			if ((*it).second == "on")
 				table[j].getautoindex() = true;
-		for (int i = 0; i < table[j].getLocations().size(); ++i)
+		for (std::size_t i = 0; i < table[j].getLocations().size(); ++i)
 		{
 			std::map<std::string, std::string>::iterator itL = table[j].getLocations()[i].getLocations().find("autoindex");
 			std::map<std::string, std::string>::iterator itEndL = table[j].getLocations()[i].getLocations().end();
-			
+
 			if (itL != itEndL)
 			{
 				if ((*itL).second == "on")
