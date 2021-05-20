@@ -42,6 +42,7 @@ void			Handler::serv(void)
 	int					bytes_read = 0;
 	int					maxFDs = get_max_fd(servers);
 	int                 serverIDX = 0;
+	struct	timeval		tv;
 
 	while (1)
 	{
@@ -88,12 +89,11 @@ void			Handler::serv(void)
 				log(msg);
 				message.clear();
 				Response response(req.getHeader(), (*servers)[serverIDX]);
-				(*it)->getMsg() = response.getResponse();
+				//(*it)->getMsg() = response.getResponse();
 			}
 
 			if (FD_ISSET((*it)->getFD(), &cp_writefds))
 			{
-				//---------------------------------------------------------------------------------------
 				int ret = write((*it)->getFD(), (*it)->getMsg().c_str(), (*it)->getMsg().size());
 				if (ret <= 0)
 				{
@@ -117,8 +117,18 @@ void			Handler::serv(void)
 					maxFDs--;
 					break;
 				}
-				//---------------------------------------------------------------------------------------
 			}
+			/* gettimeofday(&tv, 0);
+			if ((*it)->get_time() - tv.tv_sec >= 10)
+			{
+				FD_CLR((*it)->getFD(), &readfds);
+				FD_CLR((*it)->getFD(), &writefds);
+				delete *it;
+				clients.erase(it);
+				log("Client disconnected by Time");
+				maxFDs--;
+				break;
+			} */
 		}
 	}
 }

@@ -10,7 +10,8 @@ class Client
 		int					serverFD;
 		struct sockaddr_in	client;
 		std::string			msg;
-	
+		struct timeval		tv;
+
 	public:
 		Client(int serverFD) : fd(-1), serverFD(serverFD)
 		{
@@ -24,6 +25,7 @@ class Client
 		~Client()														{ close(fd); }
 		int				getFD()											{ return fd; }
 		std::string&	getMsg()										{ return msg; }
+		int				get_time()										{ return tv.tv_sec; }
 
 		void	acceptClient(int &maxFDs)
 		{
