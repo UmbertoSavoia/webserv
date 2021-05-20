@@ -12,30 +12,40 @@ std::string Response::getResponse(void) { return response; }
 std::pair<std::string, bool>	Response::isLocation(std::vector<Locations>& locations, std::string check)
 {
 	for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it)
-		if ( ((*it).getPath() == check) && ((*it).getLocations().find("root") != (*it).getLocations().end()) )
-			return std::pair<std::string, bool>((*it).getLocations().find("root")->second, true);
+		if ( ((*it).getPath() == check.substr(0, (*it).getPath().size())) && ((*it).getLocations().find("root") != (*it).getLocations().end()) )
+			return std::pair<std::string, bool>(check.replace(0, (*it).getPath().size(), (*it).getLocations().find("root")->second), true);
 	return std::pair<std::string, bool>("", false);
 }
 
 std::pair<std::string, bool>	Response::isIndex(std::vector<Locations>& locations, std::string check)
 {
 	for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it)
-		if ( ((*it).getPath() == check) && ((*it).getLocations().find("root") != (*it).getLocations().end()) )
-			return std::pair<std::string, bool>((*it).getLocations().find("index")->second, true);
+		if ( ((*it).getPath() == check.substr(0, (*it).getPath().size())) && ((*it).getLocations().find("root") != (*it).getLocations().end()) )
+			if ( (*it).getLocations().find("index") != (*it).getLocations().end() )
+				return std::pair<std::string, bool>((*it).getLocations().find("index")->second, true);
+	if (server.getParams().find("index") != server.getParams().end())
+		return std::pair<std::string, bool>(server.getParams().find("index")->second, true);
 	return std::pair<std::string, bool>("", false);
+}
+
+bool	Response::isAutoindex(std::vector<Locations>& locations, std::string check)
+{
+	for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it)
+		if ( ((*it).getPath() == check.substr(0, (*it).getPath().size())) && ((*it).getLocations().find("root") != (*it).getLocations().end()) )
+				return (*it).getautoindex();
+	return server.getautoindex();
 }
 
 void		 Response::buildResponse(void)
 {
 	std::string method = "";
 	std::pair<std::string, bool> check = isLocation(server.getLocations(), header.find("uri")->second);
+	autoidx = isAutoindex(server.getLocations(), header.find("uri")->second);
 
-	if (server.getParams().find("root") != server.getParams().end())
-		uri = server.getParams().find("root")->second;
-	if (check.second == true)
+	if (check.second == false)
+		uri = header.find("uri")->second.replace(0, 1, server.getParams().find("root")->second);
+	else
 		uri = check.first;
-	else if (check.second == false && header.find("uri")->second != "/")
-		uri += header.find("uri")->second;
 	if ( header.find("method") != header.end() )
 		method = header.find("method")->second;
 	if (method == "HEAD")
@@ -50,29 +60,56 @@ void		 Response::buildResponse(void)
 
 void		Response::method_head()
 {
-	//HTTP/1.1 200 OK
-/* 	PRINT("head")
+ 	PRINT("head")
 	struct stat buffer;
 	int status = 0;
 
-	// Costruzione Header
 	status = lstat(uri.c_str(), &buffer); // 0 se tutto ok, sennò -1
 	if (status == -1)
 	{
-		Headers rsp_header("HTTP/1.1 404 Not Found", 0, uri, 0);
+		Headers rsp_header("404 Not Found", 0, uri, 0);
 		response = rsp_header.getHeader();
 	}
-	else
+	else if ((buffer.st_mode & S_IFMT) == S_IFREG) // FILE
 	{
-		Headers rsp_header("HTTP/1.1 200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec - 7200);
+		Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec);
 		response = rsp_header.getHeader();
-	} */
+	}
+	else if ((buffer.st_mode & S_IFMT) == S_IFDIR) // CARTELLA
+	{
+		std::pair<std::string, bool> check = isIndex(server.getLocations(), header.find("uri")->second);
+
+		if ( check.second == true )
+		{
+			uri += check.first;
+			if ( !(status = lstat(uri.c_str(), &buffer)) )
+			{
+				Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec);
+				response = rsp_header.getHeader();
+			}
+			else
+			{
+				Headers rsp_header("404 Not Found", 0, uri, 0);
+				response = rsp_header.getHeader();
+			}
+		}
+		else
+		{
+			Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec);
+			response = rsp_header.getHeader();
+		//	if (autoidx == true )
+				// crea autoindex
+		//	else
+				// errore 403 Forbidden
+		}
+	}
+
 }
 
 void		Response::method_get()
-{/*
+{
 	PRINT("get")
-	struct stat buffer;
+	/*struct stat buffer;
 	int status = 0;
 	int fd = 0;
 	bool flag = false;
@@ -81,12 +118,12 @@ void		Response::method_get()
 	status = lstat(uri.c_str(), &buffer); // 0 se tutto ok, sennò -1
 	if (status == -1)
 	{
-		Headers rsp_header("HTTP/1.1 404 Not Found", 0, uri, 0);
+		Headers rsp_header("404 Not Found", 0, uri, 0);
 		response = rsp_header.getHeader();
 	}
 	else
 	{
-		Headers rsp_header("HTTP/1.1 200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec - 7200);
+		Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec - 7200);
 		response = rsp_header.getHeader();
 		flag = true;
 	}
@@ -147,7 +184,7 @@ void		Response::method_get()
 				flag = false; // ERRORE DI READ, INSERIRE ECCEZIONE ADEGUATA
 			PRINT(response)
 		}
-	} */
+	}*/
 }
 
 void		Response::method_post()
@@ -160,12 +197,12 @@ void		Response::method_post()
 	status = lstat(uri.c_str(), &buffer); // 0 se tutto ok, sennò -1
 	if (status == -1)
 	{
-		Headers rsp_header("HTTP/1.1 404 KO", 0, uri, 0);
+		Headers rsp_header("404 KO", 0, uri, 0);
 		response = rsp_header.getHeader();
 	}
 	else
 	{
-		Headers rsp_header("HTTP/1.1 200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec - 7200);
+		Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec - 7200);
 		response = rsp_header.getHeader();
 	} */
 }
@@ -180,12 +217,12 @@ void		Response::method_put()
 	status = lstat(uri.c_str(), &buffer); // 0 se tutto ok, sennò -1
 	if (status == -1)
 	{
-		Headers rsp_header("HTTP/1.1 404 KO", 0, uri, 0);
+		Headers rsp_header("404 KO", 0, uri, 0);
 		response = rsp_header.getHeader();
 	}
 	else
 	{
-		Headers rsp_header("HTTP/1.1 200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec - 7200);
+		Headers rsp_header("200 OK", buffer.st_size, uri, buffer.st_mtimespec.tv_sec - 7200);
 		response = rsp_header.getHeader();
 	} */
 }

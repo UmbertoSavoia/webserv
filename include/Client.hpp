@@ -16,25 +16,25 @@ class Client
 		Client(int serverFD) : fd(-1), serverFD(serverFD)
 		{
 			memset(&client, 0, sizeof(client));
-			msg =		"HTTP/1.1 200 OK\r\n \
+			memset(&tv, 0, sizeof(tv));
+			gettimeofday(&tv, 0);
+			msg =	""; /*	"HTTP/1.1 200 OK\r\n \
 						Server: WebServ\r\n \
 						Connection: close\r\n \
 						Content-Length : 169\r\n\r\n \
-						<html><body><center><h2>PORCHIDDDIO</h2></center></body></html>";
+						<html><body><center><h2>PORCHIDDDIO</h2></center></body></html>";*/
 		}
 		~Client()														{ close(fd); }
 		int				getFD()											{ return fd; }
 		std::string&	getMsg()										{ return msg; }
 		int				get_time()										{ return tv.tv_sec; }
 
-		void	acceptClient(int &maxFDs)
+		void	acceptClient()
 		{
 			int		socklen = sizeof(sockaddr_in);
 
 			fd = accept(serverFD, (struct sockaddr*)&client, (socklen_t*)&socklen);
 			fcntl(fd, F_SETFL, O_NONBLOCK);
-			if (fd > maxFDs)
-				maxFDs = fd;
 		}
 };
 

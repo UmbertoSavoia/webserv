@@ -33,7 +33,7 @@ class Headers
 	public:
 		Headers(std::string status, int content_len, std::string uri, long timespec)
 		{
-			headers = "";
+			headers = "HTTP/1.1 ";
 			headers += status + " \r\n";
 			headers += accept_charsets = "Accept-Charset: iso-8859-5, unicode-1-1;q=0.8 \r\n";
 			headers += accept_language = "Content-Language: it, en \r\n";
@@ -41,14 +41,14 @@ class Headers
 			headers += content_location = "Content-Location: " + uri + " \r\n";
 			headers += content_type = "Content-Type: text/html; charset=UTF-8 \r\n";
 			gettimeofday(&tv, 0);
-			nowtime = tv.tv_sec - 7200;
-			nowtm = localtime(&nowtime);
+			nowtime = tv.tv_sec;
+			nowtm = gmtime(&nowtime);
 			memset(buf, 0, sizeof(buf));
 			strftime(buf, sizeof(buf), "Date: %a, %d %b %G %X GMT \r\n", nowtm);
 			headers += date = buf;
 			headers += host = "Host: localhost\r\n";
 			nowtime = timespec;
-			nowtm = localtime(&nowtime);
+			nowtm = gmtime(&nowtime);
 			memset(buf, 0, sizeof(buf));
 			strftime(buf, sizeof(buf), "Last-Modified: %a, %d %b %G %X GMT \r\n", nowtm);
 			headers += last_modified = buf;

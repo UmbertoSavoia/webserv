@@ -40,7 +40,6 @@ void			Handler::serv(void)
 	char				buf[32000] = {0};
 	std::string			message = "";
 	int					bytes_read = 0;
-	int					maxFDs = get_max_fd(servers);
 	int                 serverIDX = 0;
 	struct	timeval		tv;
 
@@ -49,14 +48,14 @@ void			Handler::serv(void)
 		cp_readfds = readfds;
 		cp_writefds = writefds;
 
-		select(maxFDs + 1, &cp_readfds, &cp_writefds, 0, 0);
+		select(FD_SETSIZE, &cp_readfds, &cp_writefds, 0, 0);
 
 		for (int i = 0; i < servers->size(); ++i)
 		{
 			if (FD_ISSET((*servers)[i].getFd(), &cp_readfds))
 			{
 				Client* tmpClient = new Client((*servers)[i].getFd());
-				tmpClient->acceptClient(maxFDs);
+				tmpClient->acceptClient();
 				FD_SET(tmpClient->getFD(), &readfds);
 				clients.push_back(tmpClient);
 				serverIDX = i;
@@ -80,8 +79,7 @@ void			Handler::serv(void)
 					FD_CLR((*it)->getFD(), &writefds);
 					delete *it;
 					clients.erase(it);
-					log("Client disconnected");
-					maxFDs--;
+					log("Read error: Client disconnected");
 					break;
 				}
 				Request req(message);
@@ -89,7 +87,7 @@ void			Handler::serv(void)
 				log(msg);
 				message.clear();
 				Response response(req.getHeader(), (*servers)[serverIDX]);
-				//(*it)->getMsg() = response.getResponse();
+				(*it)->getMsg() = response.getResponse();
 			}
 
 			if (FD_ISSET((*it)->getFD(), &cp_writefds))
@@ -101,8 +99,7 @@ void			Handler::serv(void)
 					FD_CLR((*it)->getFD(), &writefds);
 					delete *it;
 					clients.erase(it);
-					log("Client disconnected");
-					maxFDs--;
+					log("Write error: Client disconnected");
 					break;
 				}
 				if ((unsigned long)ret < (*it)->getMsg().length())
@@ -114,21 +111,20 @@ void			Handler::serv(void)
 					delete *it;
 					clients.erase(it);
 					log("Client disconnected");
-					maxFDs--;
 					break;
 				}
 			}
-			/* gettimeofday(&tv, 0);
-			if ((*it)->get_time() - tv.tv_sec >= 10)
+			memset(&tv, 0, sizeof(tv));
+			gettimeofday(&tv, 0);
+			if ((FD_ISSET((*it)->getFD(), &cp_readfds)) && (*it)->get_time() - tv.tv_sec > 10)
 			{
 				FD_CLR((*it)->getFD(), &readfds);
 				FD_CLR((*it)->getFD(), &writefds);
 				delete *it;
 				clients.erase(it);
 				log("Client disconnected by Time");
-				maxFDs--;
 				break;
-			} */
+			}
 		}
 	}
 }
