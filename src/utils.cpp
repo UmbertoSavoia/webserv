@@ -79,7 +79,7 @@ std::string	errorPage(std::string numCode, std::string description)
 	return ret;
 }
 
-std::string	autoindexGenerator(std::string path)
+std::string	autoindexGenerator(std::string path, std::string request)
 {
 	DIR *dir = opendir(path.c_str());
 	struct dirent *dp;
@@ -90,9 +90,9 @@ std::string	autoindexGenerator(std::string path)
 	{
 		if (dp->d_name[0] == '.')
 			continue ;
-		ret += "<a href=\"" + path + "/" + dp->d_name + "\">" + dp->d_name + "</a><br>";
+		ret += "<a href=\"." + request + "/" + dp->d_name + "\">" + dp->d_name + "</a><br>";
 	}
-
+	closedir(dir);
 	ret += "<hr></body></html>";
 	return ret;
 }

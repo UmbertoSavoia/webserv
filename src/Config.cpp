@@ -18,6 +18,15 @@ Config::Config(const char* filePath)
 		content += buf;
 
 	close(fd);
+
+	std::size_t start = 0;
+	std::size_t end = 0;
+
+	while ( (start = content.find('#')) != std::string::npos )
+	{
+		end = content.find('\n', start);
+		content.erase(start, end - start );
+	}
 }
 
 Config::~Config(void)

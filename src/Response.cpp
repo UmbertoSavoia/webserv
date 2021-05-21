@@ -38,12 +38,13 @@ bool	Response::isAutoindex(std::vector<Locations>& locations, std::string check)
 
 void		 Response::buildResponse(void)
 {
+	std::string tmp = header.find("uri")->second;
 	std::string method = "";
 	std::pair<std::string, bool> check = isLocation(server.getLocations(), header.find("uri")->second);
 	autoidx = isAutoindex(server.getLocations(), header.find("uri")->second);
 
 	if (check.second == false)
-		uri = header.find("uri")->second.replace(0, 1, server.getParams().find("root")->second);
+		uri = tmp.replace(0, 1, server.getParams().find("root")->second);
 	else
 		uri = check.first;
 	if ( header.find("method") != header.end() )
@@ -120,7 +121,6 @@ void		Response::method_get()
 		int fd = open(uri.c_str(), O_RDONLY);
 		int bytes = 0;
 
-
 		Headers rsp_header("200 OK", buffer.st_size, uri, TIMESPEC);
 		response = rsp_header.getHeader();
 		while ((bytes = read(fd, buf, 32000)) > 0) {
@@ -129,6 +129,13 @@ void		Response::method_get()
 		}
 		close(fd);
 		response += body;
+		if (fd == -1 || bytes == -1)
+		{
+			body = errorPage("404", "Page Not Found");
+			Headers rsp_header("404 Not Found", body.size(), uri, 0);
+			response = rsp_header.getHeader();
+			response += body;
+		}
 	}
 	else if ((buffer.st_mode & S_IFMT) == S_IFDIR) // CARTELLA
 	{
@@ -142,7 +149,6 @@ void		Response::method_get()
 				int fd = open(uri.c_str(), O_RDONLY);
 				int bytes = 0;
 
-
 				Headers rsp_header("200 OK", buffer.st_size, uri, TIMESPEC);
 				response = rsp_header.getHeader();
 				while ((bytes = read(fd, buf, 32000)) > 0) {
@@ -151,6 +157,13 @@ void		Response::method_get()
 				}
 				close(fd);
 				response += body;
+				if (fd == -1 || bytes == -1)
+				{
+					body = errorPage("404", "Page Not Found");
+					Headers rsp_header("404 Not Found", body.size(), uri, 0);
+					response = rsp_header.getHeader();
+					response += body;
+				}
 			}
 			else
 			{
@@ -162,9 +175,9 @@ void		Response::method_get()
 		}
 		else
 		{
-			if (autoidx == true )	// crea autoindex
+			if (autoidx == true)	// crea autoindex
 			{
-				body = autoindexGenerator(uri);
+				body = autoindexGenerator(uri, header.find("uri")->second);
 				Headers rsp_header("200 OK", body.size(), uri, 0);
 				response = rsp_header.getHeader();
 				response += body;
@@ -188,4 +201,28 @@ void		Response::method_post()
 void		Response::method_put()
 {
 	PRINT("put")
+	int fd = 0;
+	std::string body = "";
+	bool existed = false;
+
+	if ((fd = open(uri.c_str(), O_RDONLY)) != -1)
+		existed = true;
+	close(fd);
+	if ( (fd = open(uri.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0655)) > 2 )
+	{
+		fcntl(fd, F_SETFL, O_NONBLOCK);
+		std::string body_header = header.find("body")->second;
+		Headers rsp_header((!existed) ? "201 Created" : "200 OK", body.size(), uri, 0);
+		response = rsp_header.getHeader();
+
+		write(fd, body_header.c_str(), body_header.size());
+	}
+	else
+	{
+		body = errorPage("404", "Page Not Found");
+		Headers rsp_header("404 Not Found", body.size(), uri, 0);
+		response = rsp_header.getHeader();
+		response += body;
+	}
+	close(fd);
 }

@@ -48,6 +48,6 @@ int									get_max_fd(std::vector<Server>* server);
 void								log(std::string msg);
 void								trim(std::string &str);
 std::string							errorPage(std::string numCode, std::string description);
-std::string							autoindexGenerator(std::string path);
+std::string							autoindexGenerator(std::string path, std::string request);
 
 #endif

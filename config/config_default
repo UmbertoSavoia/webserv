@@ -3,7 +3,7 @@ server {
 	server_name WebServer;
 	error_page www/error.html;
 	root www/
-	index index.html;
+	# index index.html;
 	autoindex on;
 
 	location /directory
