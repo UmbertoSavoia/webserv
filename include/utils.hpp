@@ -33,6 +33,13 @@
 
 #define PRINT(x) std::cout << x << std::endl;
 
+#if __APPLE__
+	#define TIMESPEC buffer.st_ctimespec.tv_sec
+#elif __linux__
+	#define TIMESPEC buffer.st_mtim.tv_sec
+#endif
+
+
 bool								ft_isspace(char c);
 std::pair<std::string, bool>		iskeywords(std::string src, std::string keywords[], int num);
 std::pair<std::string, std::string>	split_param(std::string src);
