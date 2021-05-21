@@ -21,6 +21,10 @@ class Response
 		std::pair<std::string, bool>	isLocation(std::vector<Locations>& locations, std::string check);
 		std::pair<std::string, bool>	isIndex(std::vector<Locations>& locations, std::string check);
 		bool							isAutoindex(std::vector<Locations>& locations, std::string check);
+		std::pair<std::string, bool>	isBodySize(std::vector<Locations>& locations, std::string check);
+		std::pair<std::string, bool>	isMethod(std::vector<Locations>& locations, std::string check);
+
+
 		std::string						getResponse(void);
 		void							method_head();
 		void							method_get();

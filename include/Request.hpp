@@ -20,6 +20,14 @@ class Request
 			value = request.substr(sp1 + 1, sp2 - sp1 - 1);
 			header.insert(std::pair<std::string, std::string>("uri", value));
 
+			if ((sp1 = request.find("Content-Length")) != std::string::npos)
+			{
+				sp1 += 15;
+				if ((sp2 = request.find("\r\n", sp1)) != std::string::npos)
+					value = request.substr(sp1, sp2 - sp1);
+				header.insert(std::pair<std::string, std::string>("content-lenght", value));
+			}
+
 			sp1 = request.find("\r\n\r\n");
 			if ( request.size() != (sp1 + 4) )
 			{

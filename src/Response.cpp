@@ -28,6 +28,27 @@ std::pair<std::string, bool>	Response::isIndex(std::vector<Locations>& locations
 	return std::pair<std::string, bool>("", false);
 }
 
+std::pair<std::string, bool>	Response::isBodySize(std::vector<Locations>& locations, std::string check)
+{
+	for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it)
+		if ( ((*it).getPath() == check.substr(0, (*it).getPath().size())) && ((*it).getLocations().find("root") != (*it).getLocations().end()) )
+			if ( (*it).getLocations().find("body_size") != (*it).getLocations().end() )
+				return std::pair<std::string, bool>((*it).getLocations().find("body_size")->second, true);
+	if (server.getParams().find("body_size") != server.getParams().end())
+		return std::pair<std::string, bool>(server.getParams().find("body_size")->second, true);
+	return std::pair<std::string, bool>("", false);
+}
+
+std::pair<std::string, bool>	Response::isMethod(std::vector<Locations>& locations, std::string check)
+{
+	for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it)
+		if (((*it).getPath() == check.substr(0, (*it).getPath().size())) &&
+		    ((*it).getLocations().find("root") != (*it).getLocations().end()))
+			if ((*it).getLocations().find("method_allowed") != (*it).getLocations().end())
+				return std::pair<std::string, bool>((*it).getLocations().find("method_allowed")->second, true);
+	return std::pair<std::string, bool>("", false);
+}
+
 bool	Response::isAutoindex(std::vector<Locations>& locations, std::string check)
 {
 	for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it)
@@ -41,6 +62,7 @@ void		 Response::buildResponse(void)
 	std::string tmp = header.find("uri")->second;
 	std::string method = "";
 	std::pair<std::string, bool> check = isLocation(server.getLocations(), header.find("uri")->second);
+	std::pair<std::string, bool> method_allowed = isMethod(server.getLocations(), header.find("uri")->second);
 	autoidx = isAutoindex(server.getLocations(), header.find("uri")->second);
 
 	if (check.second == false)
@@ -49,7 +71,16 @@ void		 Response::buildResponse(void)
 		uri = check.first;
 	if ( header.find("method") != header.end() )
 		method = header.find("method")->second;
-	if (method == "HEAD")
+
+	if (check.second && method_allowed.second && (method_allowed.first.find(method) == std::string::npos))
+	{
+		std::string body = "";
+		body = errorPage("405", "Method not Allowed");
+		Headers rsp_header("405 Not Allowed", body.size(), uri, 0);
+		response = rsp_header.getHeader();
+		response += body;
+	}
+	else if (method == "HEAD")
 		method_head();
 	else if (method == "GET")
 		method_get();
@@ -200,17 +231,28 @@ void		Response::method_post()
 
 void		Response::method_put()
 {
-	PRINT("put")
 	int fd = 0;
 	std::string body = "";
 	bool existed = false;
 
+
 	if ((fd = open(uri.c_str(), O_RDONLY)) != -1)
 		existed = true;
 	close(fd);
+	if (header.find("content-lenght") != header.end())
+	{
+		std::pair<std::string, bool> check = isBodySize(server.getLocations(), header.find("uri")->second);
+		if (check.second && stoull(header.find("content-lenght")->second) > stoull(check.first))
+		{
+			body = errorPage("413", "Request Entity Too Large");
+			Headers rsp_header("413 Request Entity Too Large", body.size(), uri, 0);
+			response = rsp_header.getHeader();
+			response += body;
+			return ;
+		}
+	}
 	if ( (fd = open(uri.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0655)) > 2 )
 	{
-		fcntl(fd, F_SETFL, O_NONBLOCK);
 		std::string body_header = header.find("body")->second;
 		Headers rsp_header((!existed) ? "201 Created" : "200 OK", body.size(), uri, 0);
 		response = rsp_header.getHeader();
