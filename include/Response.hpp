@@ -9,12 +9,13 @@ class Response
 		std::string							response;
 		std::map<std::string, std::string>	header;
 		Server								server;
+		Client*                             client;
 		std::string							uri;
 		bool								autoidx;
 
 
 	public:
-		Response(std::map<std::string, std::string> header, Server& server);
+		Response(std::map<std::string, std::string> header, Server& server, Client* client);
 		~Response();
 
 		void							buildResponse(void);

@@ -1,6 +1,6 @@
 #include "../include/utils.hpp"
 
-Response::Response(std::map<std::string, std::string> header, Server& server) : header(header), server(server)
+Response::Response(std::map<std::string, std::string> header, Server& server, Client* client) : header(header), server(server), client(client)
 {
 	buildResponse();
 }
@@ -75,9 +75,10 @@ void		 Response::buildResponse(void)
 	if (check.second && method_allowed.second && (method_allowed.first.find(method) == std::string::npos))
 	{
 		std::string body = "";
+		Headers rsp_header;
 		body = errorPage("405", "Method not Allowed");
-		Headers rsp_header("405 Not Allowed", body.size(), uri, 0);
-		response = rsp_header.getHeader();
+		rsp_header.headersHTTP("405 Not Allowed", body.size(), uri, 0);
+		response = rsp_header.getHeaderHTTP();
 		response += body;
 	}
 	else if (method == "HEAD")
@@ -94,17 +95,23 @@ void		Response::method_head()
 {
 	struct stat buffer;
 	int status = 0;
+	std::size_t check = 0;
+
+	if ((check = uri.find('?')) != std::string::npos)
+		uri.erase(check, uri.size() - check);
 
 	status = lstat(uri.c_str(), &buffer); // 0 se tutto ok, sennò -1
 	if (status == -1)
 	{
-		Headers rsp_header("404 Not Found", 0, uri, 0);
-		response = rsp_header.getHeader();
+		Headers rsp_header;
+		rsp_header.headersHTTP("404 Not Found", 0, uri, 0);
+		response = rsp_header.getHeaderHTTP();
 	}
 	else if ((buffer.st_mode & S_IFMT) == S_IFREG) // FILE
 	{
-		Headers rsp_header("200 OK", buffer.st_size, uri, TIMESPEC);
-		response = rsp_header.getHeader();
+		Headers rsp_header;
+		rsp_header.headersHTTP("200 OK", buffer.st_size, uri, TIMESPEC);
+		response = rsp_header.getHeaderHTTP();
 	}
 	else if ((buffer.st_mode & S_IFMT) == S_IFDIR) // CARTELLA
 	{
@@ -115,19 +122,22 @@ void		Response::method_head()
 			uri += check.first;
 			if ( !(status = lstat(uri.c_str(), &buffer)) )
 			{
-				Headers rsp_header("200 OK", buffer.st_size, uri, TIMESPEC);
-				response = rsp_header.getHeader();
+				Headers rsp_header;
+				rsp_header.headersHTTP("200 OK", buffer.st_size, uri, TIMESPEC);
+				response = rsp_header.getHeaderHTTP();
 			}
 			else
 			{
-				Headers rsp_header("404 Not Found", 0, uri, 0);
-				response = rsp_header.getHeader();
+				Headers rsp_header;
+				rsp_header.headersHTTP("404 Not Found", 0, uri, 0);
+				response = rsp_header.getHeaderHTTP();
 			}
 		}
 		else
 		{
-			Headers rsp_header("200 OK", buffer.st_size, uri, TIMESPEC);
-			response = rsp_header.getHeader();
+			Headers rsp_header;
+			rsp_header.headersHTTP("200 OK", buffer.st_size, uri, TIMESPEC);
+			response = rsp_header.getHeaderHTTP();
 		}
 	}
 }
@@ -140,11 +150,13 @@ void		Response::method_get()
 	char buf[32000] = {0};
 
 	status = lstat(uri.c_str(), &buffer); // 0 se tutto ok, sennò -1
+
 	if (status == -1)
 	{
 		body = errorPage("404", "Page Not Found");
-		Headers rsp_header("404 Not Found", body.size(), uri, 0);
-		response = rsp_header.getHeader();
+		Headers rsp_header;
+		rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
+		response = rsp_header.getHeaderHTTP();
 		response += body;
 	}
 	else if ((buffer.st_mode & S_IFMT) == S_IFREG) // FILE
@@ -152,8 +164,9 @@ void		Response::method_get()
 		int fd = open(uri.c_str(), O_RDONLY);
 		int bytes = 0;
 
-		Headers rsp_header("200 OK", buffer.st_size, uri, TIMESPEC);
-		response = rsp_header.getHeader();
+		Headers rsp_header;
+		rsp_header.headersHTTP("200 OK", buffer.st_size, uri, TIMESPEC);
+		response = rsp_header.getHeaderHTTP();
 		while ((bytes = read(fd, buf, 32000)) > 0) {
 			buf[bytes] = 0;
 			body += buf;
@@ -163,8 +176,9 @@ void		Response::method_get()
 		if (fd == -1 || bytes == -1)
 		{
 			body = errorPage("404", "Page Not Found");
-			Headers rsp_header("404 Not Found", body.size(), uri, 0);
-			response = rsp_header.getHeader();
+			Headers rsp_header;
+			rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
+			response = rsp_header.getHeaderHTTP();
 			response += body;
 		}
 	}
@@ -180,8 +194,9 @@ void		Response::method_get()
 				int fd = open(uri.c_str(), O_RDONLY);
 				int bytes = 0;
 
-				Headers rsp_header("200 OK", buffer.st_size, uri, TIMESPEC);
-				response = rsp_header.getHeader();
+				Headers rsp_header;
+				rsp_header.headersHTTP("200 OK", buffer.st_size, uri, TIMESPEC);
+				response = rsp_header.getHeaderHTTP();
 				while ((bytes = read(fd, buf, 32000)) > 0) {
 					buf[bytes] = 0;
 					body += buf;
@@ -191,16 +206,18 @@ void		Response::method_get()
 				if (fd == -1 || bytes == -1)
 				{
 					body = errorPage("404", "Page Not Found");
-					Headers rsp_header("404 Not Found", body.size(), uri, 0);
-					response = rsp_header.getHeader();
+					Headers rsp_header;
+					rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
+					response = rsp_header.getHeaderHTTP();
 					response += body;
 				}
 			}
 			else
 			{
 				body = errorPage("404", "Page Not Found");
-				Headers rsp_header("404 Not Found", body.size(), uri, 0);
-				response = rsp_header.getHeader();
+				Headers rsp_header;
+				rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
+				response = rsp_header.getHeaderHTTP();
 				response += body;
 			}
 		}
@@ -209,15 +226,17 @@ void		Response::method_get()
 			if (autoidx == true)	// crea autoindex
 			{
 				body = autoindexGenerator(uri, header.find("uri")->second);
-				Headers rsp_header("200 OK", body.size(), uri, 0);
-				response = rsp_header.getHeader();
+				Headers rsp_header;
+				rsp_header.headersHTTP("200 OK", body.size(), uri, 0);
+				response = rsp_header.getHeaderHTTP();
 				response += body;
 			}
 			else	// errore 403 Forbidden
 			{
 				body = errorPage("403", "Forbidden");
-				Headers rsp_header("403 Forbidden", body.size(), uri, 0);
-				response = rsp_header.getHeader();
+				Headers rsp_header;
+				rsp_header.headersHTTP("403 Forbidden", body.size(), uri, 0);
+				response = rsp_header.getHeaderHTTP();
 				response += body;
 			}
 		}
@@ -245,8 +264,9 @@ void		Response::method_put()
 		if (check.second && stoull(header.find("content-lenght")->second) > stoull(check.first))
 		{
 			body = errorPage("413", "Request Entity Too Large");
-			Headers rsp_header("413 Request Entity Too Large", body.size(), uri, 0);
-			response = rsp_header.getHeader();
+			Headers rsp_header;
+			rsp_header.headersHTTP("413 Request Entity Too Large", body.size(), uri, 0);
+			response = rsp_header.getHeaderHTTP();
 			response += body;
 			return ;
 		}
@@ -254,16 +274,18 @@ void		Response::method_put()
 	if ( (fd = open(uri.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0655)) > 2 )
 	{
 		std::string body_header = header.find("body")->second;
-		Headers rsp_header((!existed) ? "201 Created" : "200 OK", body.size(), uri, 0);
-		response = rsp_header.getHeader();
+		Headers rsp_header;
+		rsp_header.headersHTTP((!existed) ? "201 Created" : "200 OK", body.size(), uri, 0);
+		response = rsp_header.getHeaderHTTP();
 
 		write(fd, body_header.c_str(), body_header.size());
 	}
 	else
 	{
 		body = errorPage("404", "Page Not Found");
-		Headers rsp_header("404 Not Found", body.size(), uri, 0);
-		response = rsp_header.getHeader();
+		Headers rsp_header;
+		rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
+		response = rsp_header.getHeaderHTTP();
 		response += body;
 	}
 	close(fd);

@@ -86,7 +86,7 @@ void			Handler::serv(void)
 				std::string msg = "Client " + std::to_string((*it)->getFD()) + " had send a request";
 				log(msg);
 				message.clear();
-				Response response(req.getHeader(), (*servers)[serverIDX]);
+				Response response(req.getHeader(), (*servers)[serverIDX], *it);
 				(*it)->getMsg() = response.getResponse();
 			}
 

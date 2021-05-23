@@ -23,7 +23,7 @@ int		main(int ac, char** av)
 		std::cout << "No input file specified, do you want the default config [Y/n]?" << std::endl;
 		r = std::getchar();
 		if (r == 'Y' || r == 'y')
-			file = "config/config_default";
+			file = "config/config_default.conf";
 		else
 			return 0;
 	} else {
