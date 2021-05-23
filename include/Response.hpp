@@ -9,9 +9,10 @@ class Response
 		std::string							response;
 		std::map<std::string, std::string>	header;
 		Server								server;
-		Client*                             client;
+		Client*								client;
 		std::string							uri;
 		bool								autoidx;
+		std::string							cgi_path;
 
 
 	public:
@@ -24,6 +25,7 @@ class Response
 		bool							isAutoindex(std::vector<Locations>& locations, std::string check);
 		std::pair<std::string, bool>	isBodySize(std::vector<Locations>& locations, std::string check);
 		std::pair<std::string, bool>	isMethod(std::vector<Locations>& locations, std::string check);
+		std::pair<std::string, bool>    isCGI(std::vector<Locations>& locations, std::string check, std::string tmpURI);
 
 
 		std::string						getResponse(void);

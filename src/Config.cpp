@@ -25,7 +25,7 @@ Config::Config(const char* filePath)
 	while ( (start = content.find('#')) != std::string::npos )
 	{
 		end = content.find('\n', start);
-		content.erase(start, end - start );
+		content.erase(start, end - start);
 	}
 }
 
@@ -42,7 +42,7 @@ Config::~Config(void)
 			for (auto k : j.getLocations())
 				std::cout << "\t\t\t" << k.first << " : " << k.second << std::endl;
 		}
-	} */
+	}*/
 }
 
 std::vector<Server>*	Config::getConfig(void)

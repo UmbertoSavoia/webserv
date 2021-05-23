@@ -19,17 +19,13 @@ class Client
 			memset(&client, 0, sizeof(client));
 			memset(&tv, 0, sizeof(tv));
 			gettimeofday(&tv, 0);
-			msg =	""; /*	"HTTP/1.1 200 OK\r\n \
-						Server: WebServ\r\n \
-						Connection: close\r\n \
-						Content-Length : 169\r\n\r\n \
-						<html><body><center><h2>PORCHIDDDIO</h2></center></body></html>";*/
+			msg =	"";
 		}
-		~Client()														{ close(fd); }
-		int				getFD()											{ return fd; }
-		std::string&	getMsg()										{ return msg; }
-		int				get_time()										{ return tv.tv_sec; }
-		std::string     get_ip()                                        { return ip; }
+		~Client()						{ close(fd); }
+		int				getFD()			{ return fd; }
+		std::string&	getMsg()		{ return msg; }
+		int				get_time()		{ return tv.tv_sec; }
+		std::string     get_ip()        { return ip; }
 
 		void	acceptClient()
 		{

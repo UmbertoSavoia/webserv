@@ -47,7 +47,7 @@ class Headers
 			headers_http += "\r\n";
 		}
 
-		void    headersCGI(std::map<std::string, std::string>& header, Client* client, Server& server)
+		void    headersCGI(std::map<std::string, std::string>& header, Client* client, Server& server, std::string uri)
 		{
 /*			AUTH_TYPE
 			CONTENT_LENGTH
@@ -77,8 +77,8 @@ class Headers
 
 			headers_cgi["CONTENT_TYPE"] = "text/html";
 			headers_cgi["GATEWAY_INTERFACE"] = "CGI/1.1";
-			headers_cgi["PATH_INFO"] = "";
-			headers_cgi["PATH_TRANSLATED"] = "";
+			headers_cgi["PATH_INFO"] = uri;
+			headers_cgi["PATH_TRANSLATED"] = uri;
 
 			if (header.find("method")->second == "POST")
 			{

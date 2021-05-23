@@ -30,6 +30,7 @@
 #include "Client.hpp"
 #include "Response.hpp"
 #include "Headers.hpp"
+#include "CGI.hpp"
 
 #define PRINT(x) std::cout << x << std::endl;
 

@@ -49,6 +49,33 @@ std::pair<std::string, bool>	Response::isMethod(std::vector<Locations>& location
 	return std::pair<std::string, bool>("", false);
 }
 
+std::pair<std::string, bool>    Response::isCGI(std::vector<Locations>& locations, std::string check, std::string tmpURI)
+{
+	for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it)
+	{
+		if (((*it).getPath() == check.substr(0, (*it).getPath().size())) && ((*it).getLocations().find("extension_cgi") != (*it).getLocations().end()))
+		{
+			cgi_path = (*it).getLocations().find("exec_cgi")->second;
+			std::string s = (*it).getLocations().find("extension_cgi")->second;
+			std::string delimiter = " ";
+			size_t pos = 0;
+			std::string token;
+
+			while ((pos = s.find(delimiter)) != std::string::npos) {
+				token = s.substr(0, pos);
+				if (tmpURI.substr(tmpURI.size() - token.size()) == token)
+					return std::pair<std::string, bool>(token, true);
+				s.erase(0, pos + delimiter.length());
+			}
+
+			if (((pos = s.find(delimiter)) == std::string::npos) && s.size() != 0)
+				if (tmpURI.substr(tmpURI.size() - s.size()) == s)
+					return std::pair<std::string, bool>(s, true);
+		}
+	}
+	return std::pair<std::string, bool>("", false);
+}
+
 bool	Response::isAutoindex(std::vector<Locations>& locations, std::string check)
 {
 	for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it)
@@ -149,6 +176,25 @@ void		Response::method_get()
 	std::string body = "";
 	char buf[32000] = {0};
 
+
+	std::size_t pos = 0;
+	std::string tmpURI;
+	if ((pos = uri.find('?')) != std::string::npos)
+		tmpURI = uri.substr(0, pos);
+	else
+		tmpURI = uri;
+	std::pair<std::string, bool> checkCGI = isCGI(server.getLocations(), header.find("uri")->second, tmpURI);
+	PRINT(tmpURI)
+	if (checkCGI.second)
+	{
+		Headers env;
+		env.headersCGI(header, client, server, uri);
+		CGI cgi(cgi_path, tmpURI, env.getHeaderCGI());
+		response = cgi.getStatus();
+		response += cgi.getOutput();
+		return ;
+	}
+
 	status = lstat(uri.c_str(), &buffer); // 0 se tutto ok, sennò -1
 
 	if (status == -1)
@@ -245,7 +291,18 @@ void		Response::method_get()
 
 void		Response::method_post()
 {
-	PRINT("post")
+	std::size_t pos = 0;
+	std::string tmpURI;
+	if ((pos = uri.find('?')) != std::string::npos)
+		tmpURI = uri.substr(0, pos);
+	else
+		tmpURI = uri;
+	std::pair<std::string, bool> checkCGI = isCGI(server.getLocations(), header.find("uri")->second, tmpURI);
+	Headers env;
+	env.headersCGI(header, client, server, uri);
+	CGI cgi(cgi_path, uri, env.getHeaderCGI());
+	response = cgi.getStatus();
+	response += cgi.getOutput();
 }
 
 void		Response::method_put()

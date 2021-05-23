@@ -22,7 +22,7 @@ std::pair<std::string, std::string>	split_param(std::string src)
 		++space;
 
 	int lenSecond = space;
-	while (src[lenSecond] != ';' && src[lenSecond] != '\n' && src[lenSecond] != ' ')
+	while (src[lenSecond] != ';' && src[lenSecond] != '\n' /*&& src[lenSecond] != ' '*/)
 		++lenSecond;
 	std::string second = src.substr(space, lenSecond - space);
 	trim(first);
