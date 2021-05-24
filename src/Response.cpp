@@ -291,7 +291,6 @@ void		Response::method_get()
 
 void		Response::method_post()
 {
-	PRINT("NA STAMPA")
 	std::size_t pos = 0;
 	std::string tmpURI;
 	if ((pos = uri.find('?')) != std::string::npos)

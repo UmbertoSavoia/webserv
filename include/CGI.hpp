@@ -3,6 +3,10 @@
 
 #include "utils.hpp"
 
+#if __linux__
+	#include <sys/wait.h>
+#endif
+
 class CGI
 {
 	private:
@@ -21,8 +25,15 @@ class CGI
 
 			if (pid == 0)
 			{
-
-				char *echocmd[] = {"echo", "lname=ciao&fname=ca", NULL};
+				char* av = 0;
+				for (int i = 0; envCGI[i]; ++i)
+					if (!memcmp("QUERY_STRING", envCGI[i], 12))
+						av = strdup((std::string(envCGI[i]).substr(14).c_str()));
+				//char *echocmd[] = {"echo", "fname=ciao&lname=cacca", NULL};
+				char **echocmd = (char**)malloc(sizeof(char*) * 3);
+				echocmd[0] = strdup("echo");
+				echocmd[1] = strdup(av);
+				echocmd[2] = 0;
 				int pp[2];
 				int pid2, res;
 
@@ -47,7 +58,6 @@ class CGI
 					av[1] = strdup(uri.c_str());
 					av[2] = 0;
 					close(fd[0]);
-					std::cout << av[0] << std::endl << av[1] << std::endl;
 					dup2(fd[1], 1);
 					execve(pathCGI.c_str(), av, envCGI);
 					close(fd[1]);
