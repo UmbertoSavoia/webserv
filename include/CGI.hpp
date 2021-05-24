@@ -21,17 +21,44 @@ class CGI
 
 			if (pid == 0)
 			{
-				std::cout << uri << std::endl;
-				std::cout << pathCGI << std::endl;
-				char **av = (char**)malloc(sizeof(char*) * 3);
-				av[0] = strdup(pathCGI.c_str());
-				av[1] = strdup(uri.c_str());
-				av[2] = 0;
-				close(fd[0]);
-				dup2(fd[1], 1);
-				execve(pathCGI.c_str(), av, envCGI);
-				close(fd[1]);
-				exit(0);
+
+
+				char *echocmd[] = {"echo", "lname=ciao&fname=ca", NULL};
+				int pp[2];
+				int pid2, res;
+
+				pipe(pp);
+
+				if ((pid2 = fork()) != 0)
+				{
+					close(fd[0]);
+					close(fd[1]);
+					dup2(pp[1], 1);
+					close(pp[0]);
+
+					res = execvp(echocmd[0], echocmd);
+				}
+				else
+				{
+					dup2(pp[0], 0);
+					close(pp[1]);
+
+					char **av = (char**)malloc(sizeof(char*) * 3);
+					av[0] = strdup(pathCGI.c_str());
+					av[1] = strdup(uri.c_str());
+					av[2] = 0;
+					close(fd[0]);
+					std::cout << av[0] << std::endl << av[1] << std::endl;
+					dup2(fd[1], 1);
+					execve(pathCGI.c_str(), av, envCGI);
+					close(fd[1]);
+					exit(0);
+				}
+
+				//close(pp[1]);
+
+
+
 			}
 			if (pid > 0)
 			{

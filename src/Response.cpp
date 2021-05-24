@@ -98,13 +98,12 @@ void		 Response::buildResponse(void)
 		uri = check.first;
 	if ( header.find("method") != header.end() )
 		method = header.find("method")->second;
-
 	if (check.second && method_allowed.second && (method_allowed.first.find(method) == std::string::npos))
 	{
 		std::string body = "";
 		Headers rsp_header;
 		body = errorPage("405", "Method not Allowed");
-		rsp_header.headersHTTP("405 Not Allowed", body.size(), uri, 0);
+		rsp_header.headersHTTP("405 Method Not Allowed", body.size(), uri, 0);
 		response = rsp_header.getHeaderHTTP();
 		response += body;
 	}
@@ -184,7 +183,6 @@ void		Response::method_get()
 	else
 		tmpURI = uri;
 	std::pair<std::string, bool> checkCGI = isCGI(server.getLocations(), header.find("uri")->second, tmpURI);
-	PRINT(tmpURI)
 	if (checkCGI.second)
 	{
 		Headers env;
@@ -291,6 +289,7 @@ void		Response::method_get()
 
 void		Response::method_post()
 {
+	PRINT("NA STAMPA")
 	std::size_t pos = 0;
 	std::string tmpURI;
 	if ((pos = uri.find('?')) != std::string::npos)

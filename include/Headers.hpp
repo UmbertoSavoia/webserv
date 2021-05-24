@@ -75,7 +75,11 @@ class Headers
 			else
 				headers_cgi["CONTENT_LENGTH"] = "";
 
-			headers_cgi["CONTENT_TYPE"] = "text/html";
+			if (header.find("method")->second == "GET")
+				headers_cgi["CONTENT_TYPE"] = "text/html";
+			else
+				headers_cgi["CONTENT_TYPE"] = "application/x-www-form-urlencoded";
+
 			headers_cgi["GATEWAY_INTERFACE"] = "CGI/1.1";
 			headers_cgi["PATH_INFO"] = uri;
 			headers_cgi["PATH_TRANSLATED"] = uri;
@@ -101,10 +105,10 @@ class Headers
 			headers_cgi["REQUEST_METHOD"] = header.find("method")->second;
 			headers_cgi["REQUEST_URI"] = header.find("uri")->second;
 
-			if ((found = header.find("uri")->second.find('?')) != std::string::npos)
-				headers_cgi["SCRIPT_NAME"] = header.find("uri")->second.substr(0, found);
+			if ((found = uri.find('?')) != std::string::npos)
+				headers_cgi["SCRIPT_NAME"] = uri.substr(0, found);
 			else
-				headers_cgi["SCRIPT_NAME"] = header.find("uri")->second;
+				headers_cgi["SCRIPT_NAME"] = uri;
 
 			headers_cgi["SERVER_NAME"] = "localhost";
 			headers_cgi["SERVER_PORT"] = server.getParams().find("listen")->second;
