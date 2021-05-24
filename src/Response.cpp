@@ -201,7 +201,7 @@ void		Response::method_get()
 	{
 		body = errorPage("404", "Page Not Found");
 		Headers rsp_header;
-		rsp_header.headersHTTP("404 Not Found LSTAT", body.size(), uri, 0);
+		rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
 		response = rsp_header.getHeaderHTTP();
 		response += body;
 	}

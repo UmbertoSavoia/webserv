@@ -70,8 +70,7 @@ void			Handler::serv(void)
 				{
 					buf[bytes_read] = 0;
 					message += buf;
-					FD_SET((*it)->getFD(), &writefds);
-					FD_CLR((*it)->getFD(), &readfds);
+					memset(buf, 0, sizeof(buf));
 				}
 				else
 				{
@@ -82,17 +81,22 @@ void			Handler::serv(void)
 					log("Read error: Client disconnected");
 					break;
 				}
+				if (message.find("\r\n") != std::string::npos)
+				{
+					FD_SET((*it)->getFD(), &writefds);
+					FD_CLR((*it)->getFD(), &readfds);
+				}
 				Request req(message);
 				std::string msg = "Client " + std::to_string((*it)->getFD()) + " had send a request";
 				log(msg);
 				Response response(req.getHeader(), (*servers)[serverIDX], *it);
 				(*it)->getMsg() = response.getResponse();
 
-				/*std::cout << "-------------------------------------------------------------------------" << std::endl;
+				std::cout << "-------------------------------------------------------------------------" << std::endl;
 				std::cout << message << std::endl;
 				std::cout << "-------------------------------------------------------------------------" << std::endl;
 				std::cout << (*it)->getMsg() << std::endl;
-				std::cout << "-------------------------------------------------------------------------" << std::endl;*/
+				std::cout << "-------------------------------------------------------------------------" << std::endl;
 
 				message.clear();
 			}
