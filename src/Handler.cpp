@@ -85,9 +85,16 @@ void			Handler::serv(void)
 				Request req(message);
 				std::string msg = "Client " + std::to_string((*it)->getFD()) + " had send a request";
 				log(msg);
-				message.clear();
 				Response response(req.getHeader(), (*servers)[serverIDX], *it);
 				(*it)->getMsg() = response.getResponse();
+
+				/*std::cout << "-------------------------------------------------------------------------" << std::endl;
+				std::cout << message << std::endl;
+				std::cout << "-------------------------------------------------------------------------" << std::endl;
+				std::cout << (*it)->getMsg() << std::endl;
+				std::cout << "-------------------------------------------------------------------------" << std::endl;*/
+
+				message.clear();
 			}
 
 			if (FD_ISSET((*it)->getFD(), &cp_writefds))

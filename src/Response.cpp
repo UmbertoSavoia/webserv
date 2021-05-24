@@ -46,6 +46,8 @@ std::pair<std::string, bool>	Response::isMethod(std::vector<Locations>& location
 		    ((*it).getLocations().find("root") != (*it).getLocations().end()))
 			if ((*it).getLocations().find("method_allowed") != (*it).getLocations().end())
 				return std::pair<std::string, bool>((*it).getLocations().find("method_allowed")->second, true);
+		if (server.getParams().find("method_allowed") != server.getParams().end())
+			return std::pair<std::string, bool>(server.getParams().find("method_allowed")->second, true);
 	return std::pair<std::string, bool>("", false);
 }
 
@@ -96,9 +98,10 @@ void		 Response::buildResponse(void)
 		uri = tmp.replace(0, 1, server.getParams().find("root")->second);
 	else
 		uri = check.first;
+
 	if ( header.find("method") != header.end() )
 		method = header.find("method")->second;
-	if (check.second && method_allowed.second && (method_allowed.first.find(method) == std::string::npos))
+	if (method_allowed.second && (method_allowed.first.find(method) == std::string::npos))
 	{
 		std::string body = "";
 		Headers rsp_header;
@@ -130,13 +133,13 @@ void		Response::method_head()
 	if (status == -1)
 	{
 		Headers rsp_header;
-		rsp_header.headersHTTP("404 Not Found", 0, uri, 0);
+		rsp_header.headersHead("404 Not Found");
 		response = rsp_header.getHeaderHTTP();
 	}
 	else if ((buffer.st_mode & S_IFMT) == S_IFREG) // FILE
 	{
 		Headers rsp_header;
-		rsp_header.headersHTTP("200 OK", buffer.st_size, uri, TIMESPEC);
+		rsp_header.headersHead("200 OK");
 		response = rsp_header.getHeaderHTTP();
 	}
 	else if ((buffer.st_mode & S_IFMT) == S_IFDIR) // CARTELLA
@@ -149,20 +152,20 @@ void		Response::method_head()
 			if ( !(status = lstat(uri.c_str(), &buffer)) )
 			{
 				Headers rsp_header;
-				rsp_header.headersHTTP("200 OK", buffer.st_size, uri, TIMESPEC);
+				rsp_header.headersHead("200 OK");
 				response = rsp_header.getHeaderHTTP();
 			}
 			else
 			{
 				Headers rsp_header;
-				rsp_header.headersHTTP("404 Not Found", 0, uri, 0);
+				rsp_header.headersHead("404 Not Found");
 				response = rsp_header.getHeaderHTTP();
 			}
 		}
 		else
 		{
 			Headers rsp_header;
-			rsp_header.headersHTTP("200 OK", buffer.st_size, uri, TIMESPEC);
+			rsp_header.headersHead("200 OK");
 			response = rsp_header.getHeaderHTTP();
 		}
 	}
@@ -192,14 +195,13 @@ void		Response::method_get()
 		response += cgi.getOutput();
 		return ;
 	}
-
 	status = lstat(uri.c_str(), &buffer); // 0 se tutto ok, sennò -1
 
 	if (status == -1)
 	{
 		body = errorPage("404", "Page Not Found");
 		Headers rsp_header;
-		rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
+		rsp_header.headersHTTP("404 Not Found LSTAT", body.size(), uri, 0);
 		response = rsp_header.getHeaderHTTP();
 		response += body;
 	}

@@ -75,7 +75,7 @@ std::string	errorPage(std::string numCode, std::string description)
 {
 	std::string ret = "	<html> <head></head> <body> <center> \
 						<h1> " + numCode + " <br> " + description + " </h1> \
-						</center> </body> </html> ";
+						</center> </body> </html> \r\n\r\n";
 	return ret;
 }
 

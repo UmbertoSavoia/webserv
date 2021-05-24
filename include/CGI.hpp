@@ -22,7 +22,6 @@ class CGI
 			if (pid == 0)
 			{
 
-
 				char *echocmd[] = {"echo", "lname=ciao&fname=ca", NULL};
 				int pp[2];
 				int pid2, res;
@@ -54,11 +53,6 @@ class CGI
 					close(fd[1]);
 					exit(0);
 				}
-
-				//close(pp[1]);
-
-
-
 			}
 			if (pid > 0)
 			{

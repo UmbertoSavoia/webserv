@@ -17,6 +17,14 @@ class Headers
 		Headers(void) {}
 		~Headers() {}
 
+		void    headersHead(std::string status)
+		{
+			headers_http = "HTTP/1.1 ";
+			headers_http += status + " \r\n";
+			headers_http += "Server: WebServer\r\n";
+			headers_http += "\r\n";
+		}
+
 		void    headersHTTP(std::string status, int content_len, std::string uri, long timespec)
 		{
 			headers_http = "HTTP/1.1 ";
