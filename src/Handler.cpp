@@ -66,13 +66,13 @@ void			Handler::serv(void)
 		{
 			if (FD_ISSET((*it)->getFD(), &cp_readfds))
 			{
-				if ((bytes_read = read((*it)->getFD(), buf, 32000)) > 0 )
+				if ((bytes_read = recv((*it)->getFD(), buf, 32000, 0)) > 0 )
 				{
 					buf[bytes_read] = 0;
 					message += buf;
 					memset(buf, 0, sizeof(buf));
 				}
-				else
+				else if (bytes_read == 0)
 				{
 					FD_CLR((*it)->getFD(), &readfds);
 					FD_CLR((*it)->getFD(), &writefds);
@@ -81,11 +81,13 @@ void			Handler::serv(void)
 					log("Read error: Client disconnected");
 					break;
 				}
-				if (message.find("\r\n") != std::string::npos)
+				if (message.find("\r\n\r\n") != std::string::npos)
 				{
 					FD_SET((*it)->getFD(), &writefds);
 					FD_CLR((*it)->getFD(), &readfds);
 				}
+				else
+					break ;
 				Request req(message);
 				std::string msg = "Client " + std::to_string((*it)->getFD()) + " had send a request";
 				log(msg);
@@ -93,9 +95,9 @@ void			Handler::serv(void)
 				(*it)->getMsg() = response.getResponse();
 
 				std::cout << "-------------------------------------------------------------------------" << std::endl;
-				std::cout << message << std::endl;
+				std::cout << "\033[32m" << message << "\033[0m" << std::endl;
 				std::cout << "-------------------------------------------------------------------------" << std::endl;
-				std::cout << (*it)->getMsg() << std::endl;
+				std::cout << "\033[36m" << (*it)->getMsg() << "\033[0m" << std::endl;
 				std::cout << "-------------------------------------------------------------------------" << std::endl;
 
 				message.clear();
@@ -103,7 +105,7 @@ void			Handler::serv(void)
 
 			if (FD_ISSET((*it)->getFD(), &cp_writefds))
 			{
-				int ret = write((*it)->getFD(), (*it)->getMsg().c_str(), (*it)->getMsg().size());
+				int ret = send((*it)->getFD(), (*it)->getMsg().c_str(), (*it)->getMsg().size(), 0);
 				if (ret <= 0)
 				{
 					FD_CLR((*it)->getFD(), &readfds);
