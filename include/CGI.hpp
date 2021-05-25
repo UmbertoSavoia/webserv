@@ -36,8 +36,7 @@ class CGI
 				echocmd[2] = 0;
 				int pp[2];
 				int pid2, res;
-for (int i = 0; envCGI[i]; ++i)
-	std::cout << std::string(envCGI[i]).substr(30) << std::endl;
+
 				pipe(pp);
 
 				if ((pid2 = fork()) != 0)
@@ -91,7 +90,7 @@ for (int i = 0; envCGI[i]; ++i)
 		}
 		~CGI() {}
 
-		std::string getOutput(void) { return output; }
+		std::string getOutput(void) { return (output.size() == 0) ? "\r\n" : output; }
 		std::string getStatus(void) { return status; }
 };
 

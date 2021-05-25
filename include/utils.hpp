@@ -22,8 +22,6 @@
 #include <vector>
 #include <map>
 
-#include <iomanip>
-
 #include "Config.hpp"
 #include "Server.hpp"
 #include "Locations.hpp"
