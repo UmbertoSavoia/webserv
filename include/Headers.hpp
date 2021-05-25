@@ -98,7 +98,9 @@ class Headers
 					headers_cgi["QUERY_STRING"] = header.find("body")->second;
 				else
 					headers_cgi["QUERY_STRING"] = "";
-			} else {
+			}
+			else
+			{
 				if (header.find("method")->second == "GET" && (found = header.find("uri")->second.find('?') != std::string::npos))
 					headers_cgi["QUERY_STRING"] = header.find("uri")->second.substr(found, header.find("uri")->second.size() - found);
 				else

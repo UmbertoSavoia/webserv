@@ -331,6 +331,9 @@ void		Response::method_put()
 	if ( (fd = open(uri.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0655)) > 2 )
 	{
 		//std::string body_header = header.find("body")->second;
+		/*std::cout << "=======================================" << std::endl;
+		std::cout << header.find("body")->second << std::endl;
+		std::cout << "=======================================" << std::endl;*/
 		Headers rsp_header;
 		rsp_header.headersHTTP((!existed) ? "201 Created" : "200 OK", body.size(), uri, 0);
 		response = rsp_header.getHeaderHTTP();

@@ -37,7 +37,7 @@ void			Handler::init(void)
 
 void			Handler::serv(void)
 {
-	char				buf[32000] = {0};
+	char				buf[32002] = {0};
 	std::string			message = "";
 	int					bytes_read = 0;
 	int					serverIDX = 0;
@@ -69,6 +69,7 @@ void			Handler::serv(void)
 				if ((bytes_read = recv((*it)->getFD(), buf, 32000, 0)) > 0 )
 				{
 					buf[bytes_read] = 0;
+//					std::cout << buf;
 					message += buf;
 					memset(buf, 0, sizeof(buf));
 				}
@@ -81,10 +82,31 @@ void			Handler::serv(void)
 					log("Read error: Client disconnected");
 					break;
 				}
-				if (message.find("\r\n\r\n") != std::string::npos)
+				int s = 0;
+				if ((s = message.find("\r\n\r\n")) != std::string::npos)
 				{
-					FD_SET((*it)->getFD(), &writefds);
-					FD_CLR((*it)->getFD(), &readfds);
+					/*int s = 0;
+					if ((s = message.find("chunked")) != std::string::npos)
+					{
+						message.erase(s, 7);
+						break;
+					}*/
+					//else
+					if ((message.find("PUT") != std::string::npos ||
+					     message.find("POST") != std::string::npos) )
+					{
+						if (message.substr(s + 4).find("\r\n\r\n") != std::string::npos)
+						{
+							FD_SET((*it)->getFD(), &writefds);
+							FD_CLR((*it)->getFD(), &readfds);
+						}
+						else
+							break;
+					}
+					else {
+						FD_SET((*it)->getFD(), &writefds);
+						FD_CLR((*it)->getFD(), &readfds);
+					}
 				}
 				else
 					break ;
@@ -94,11 +116,11 @@ void			Handler::serv(void)
 				Response response(req.getHeader(), (*servers)[serverIDX], *it);
 				(*it)->getMsg() = response.getResponse();
 
-				std::cout << "-------------------------------------------------------------------------" << std::endl;
+				/*std::cout << "-------------------------------------------------------------------------" << std::endl;
 				std::cout << "\033[32m" << message << "\033[0m" << std::endl;
 				std::cout << "-------------------------------------------------------------------------" << std::endl;
 				std::cout << "\033[36m" << (*it)->getMsg() << "\033[0m" << std::endl;
-				std::cout << "-------------------------------------------------------------------------" << std::endl;
+				std::cout << "-------------------------------------------------------------------------" << std::endl;*/
 
 				message.clear();
 			}
