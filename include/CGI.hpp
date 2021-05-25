@@ -27,12 +27,12 @@ class CGI
 			{
 				char* av = 0;
 				for (int i = 0; envCGI[i]; ++i)
-					if (!memcmp("QUERY_STRING", envCGI[i], 12))
-						av = strdup((std::string(envCGI[i]).substr(14).c_str()));
+					if (std::string(envCGI[i]) == "QUERY_STRING")
+						av = (strlen(envCGI[i]) < 14) ? 0 : strdup((std::string(envCGI[i]).substr(14).c_str()));
 				//char *echocmd[] = {"echo", "fname=ciao&lname=cacca", NULL};
 				char **echocmd = (char**)malloc(sizeof(char*) * 3);
 				echocmd[0] = strdup("echo");
-				echocmd[1] = strdup(av);
+				echocmd[1] = av;
 				echocmd[2] = 0;
 				int pp[2];
 				int pid2, res;
@@ -66,13 +66,16 @@ class CGI
 			}
 			if (pid > 0)
 			{
-				size_t pos = 0;
 				wait(0);
+				size_t pos = 0;
 				char r = 0;
 				close(fd[1]);
 				while (read(fd[0], &r, 1) > 0)
 					output += r;
 				close(fd[0]);
+				std::cout << "=======================================" << std::endl;
+				std::cout << output << std::endl;
+				std::cout << "=======================================" << std::endl;
 				if ((pos = output.find("Status: ")) != std::string::npos)
 				{
 					pos += 8;

@@ -148,7 +148,7 @@ void		Response::method_head()
 
 		if ( check.second == true )
 		{
-			uri += check.first;
+			uri += "/" + check.first;
 			if ( !(status = lstat(uri.c_str(), &buffer)) )
 			{
 				Headers rsp_header;
@@ -234,7 +234,7 @@ void		Response::method_get()
 
 		if ( check.second == true )
 		{
-			uri += check.first;
+			uri += "/" + check.first;
 			if ( !(status = lstat(uri.c_str(), &buffer)) )
 			{
 				int fd = open(uri.c_str(), O_RDONLY);
@@ -330,12 +330,13 @@ void		Response::method_put()
 	}
 	if ( (fd = open(uri.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0655)) > 2 )
 	{
-		std::string body_header = header.find("body")->second;
+		//std::string body_header = header.find("body")->second;
 		Headers rsp_header;
 		rsp_header.headersHTTP((!existed) ? "201 Created" : "200 OK", body.size(), uri, 0);
 		response = rsp_header.getHeaderHTTP();
 
-		write(fd, body_header.c_str(), body_header.size());
+		//write(fd, body_header.c_str(), body_header.size());
+		write(fd, header.find("body")->second.c_str(), header.find("body")->second.size());
 	}
 	else
 	{

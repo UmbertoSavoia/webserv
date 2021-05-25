@@ -89,8 +89,8 @@ class Headers
 				headers_cgi["CONTENT_TYPE"] = "application/x-www-form-urlencoded";
 
 			headers_cgi["GATEWAY_INTERFACE"] = "CGI/1.1";
-			headers_cgi["PATH_INFO"] = uri;
-			headers_cgi["PATH_TRANSLATED"] = uri;
+			headers_cgi["PATH_INFO"] = header.find("uri")->second;
+			headers_cgi["PATH_TRANSLATED"] = header.find("uri")->second;
 
 			if (header.find("method")->second == "POST")
 			{
@@ -129,7 +129,7 @@ class Headers
 		char**     getHeaderCGI(void)
 		{
 			int i = 0;
-			char** ret = (char**)malloc(sizeof(char*) * headers_cgi.size() + 1);
+			char** ret = (char**)malloc(sizeof(char*) * (headers_cgi.size() + 1));
 
 			for (std::map<std::string, std::string>::iterator it = headers_cgi.begin(); it != headers_cgi.end(); ++it, ++i)
 				ret[i] = strdup(const_cast<char*>(std::string(it->first + "=" + it->second).c_str()));
