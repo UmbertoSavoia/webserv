@@ -89,8 +89,15 @@ class Headers
 				headers_cgi["CONTENT_TYPE"] = "application/x-www-form-urlencoded";
 
 			headers_cgi["GATEWAY_INTERFACE"] = "CGI/1.1";
-			headers_cgi["PATH_INFO"] = header.find("uri")->second;
-			headers_cgi["PATH_TRANSLATED"] = header.find("uri")->second;
+
+			if (uri.find(".bla") != std::string::npos)
+			{
+				headers_cgi["PATH_INFO"] = header.find("uri")->second;
+				headers_cgi["PATH_TRANSLATED"] = header.find("uri")->second;
+			} else {
+				headers_cgi["PATH_INFO"] = uri;
+				headers_cgi["PATH_TRANSLATED"] = uri;
+			}
 
 			if (header.find("method")->second == "POST")
 			{

@@ -92,10 +92,12 @@ void			Handler::serv(void)
 						break;
 					}*/
 					//else
+
+
 					if ((message.find("PUT") != std::string::npos ||
 					     message.find("POST") != std::string::npos) )
 					{
-						if (message.substr(s + 4).find("\r\n\r\n") != std::string::npos)
+						if ((message.substr(s + 4).find('\0') != std::string::npos) || (message.substr(s + 4).find("\r\n\r\n") != std::string::npos))
 						{
 							FD_SET((*it)->getFD(), &writefds);
 							FD_CLR((*it)->getFD(), &readfds);

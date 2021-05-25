@@ -28,19 +28,16 @@ class CGI
 				char* av = 0;
 				for (int i = 0; envCGI[i]; ++i)
 					if (std::string(envCGI[i]).substr(0, 12) == "QUERY_STRING")
-						av = (strlen(envCGI[i]) < 14) ? 0 : strdup((std::string(envCGI[i]).substr(14).c_str()));
+						av = (strlen(envCGI[i]) < 14) ? strdup("") : strdup((std::string(envCGI[i]).substr(13).c_str()));
 				//char *echocmd[] = {"echo", "fname=ciao&lname=cacca", NULL};
 				char **echocmd = (char**)malloc(sizeof(char*) * 3);
-				if (av)
-					std::cout << "av :" <<  av << std::endl;
-				else
-					std::cout << "av = 0 !!" << std::endl;
 				echocmd[0] = strdup("echo");
 				echocmd[1] = av;
 				echocmd[2] = 0;
 				int pp[2];
 				int pid2, res;
-
+for (int i = 0; envCGI[i]; ++i)
+	std::cout << std::string(envCGI[i]).substr(30) << std::endl;
 				pipe(pp);
 
 				if ((pid2 = fork()) != 0)
@@ -76,7 +73,9 @@ class CGI
 				close(fd[1]);
 				while (read(fd[0], &r, 1) > 0)
 					output += r;
+				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;
 				std::cout << output << std::endl;
+				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;
 				close(fd[0]);
 				if ((pos = output.find("Status: ")) != std::string::npos)
 				{
