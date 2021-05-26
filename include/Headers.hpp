@@ -90,11 +90,11 @@ class Headers
 
 			headers_cgi["GATEWAY_INTERFACE"] = "CGI/1.1";
 
-			if (uri.find(".bla") != std::string::npos)
+			if ((uri.find(".bla") != std::string::npos) || (uri.find("post_body") != std::string::npos))
 			{
 				headers_cgi["PATH_INFO"] = header.find("uri")->second;
 				headers_cgi["PATH_TRANSLATED"] = header.find("uri")->second;
-			} else {
+			}  else {
 				headers_cgi["PATH_INFO"] = uri;
 				headers_cgi["PATH_TRANSLATED"] = uri;
 			}

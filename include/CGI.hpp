@@ -38,8 +38,8 @@ for(int i = 0; envCGI[i]; ++i)
 			echocmd[1] = const_cast<char*>(uri.c_str());
 			echocmd[2] = 0;
 //----------------------------------------------------------------------------------------------------------------------
-for(int i = 0; echocmd[i]; ++i)
-	std::cout << echocmd[i] << std::endl;
+/* for(int i = 0; echocmd[i]; ++i)
+	std::cout << echocmd[i] << std::endl; */
 //----------------------------------------------------------------------------------------------------------------------
 			av.erase(std::remove_if(av.begin(), av.end(), [](int c){return (isspace(c) || isdigit(c) || c == 'a');}), av.end());
 
@@ -68,9 +68,9 @@ for(int i = 0; echocmd[i]; ++i)
 
 				while (read(fd_pezza2, &r, 1) > 0)
 					output += r;
-				/*std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;
+				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;
 				std::cout << ((output == "")? "OUTPUT: ZERO": output) << std::endl;
-				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;*/
+				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;
 				if ((pos = output.find("Status: ")) != std::string::npos)
 				{
 					pos += 8;
