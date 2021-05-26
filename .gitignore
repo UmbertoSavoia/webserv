@@ -4,3 +4,4 @@ webserv
 *.o
 .vscode
 .idea
+*.txt
