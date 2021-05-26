@@ -37,7 +37,7 @@ void			Handler::init(void)
 
 void			Handler::serv(void)
 {
-	char				buf[32002] = {0};
+	char				*buf = (char*)malloc(100000001);
 	std::string			message = "";
 	int					bytes_read = 0;
 	int					serverIDX = 0;
@@ -66,12 +66,11 @@ void			Handler::serv(void)
 		{
 			if (FD_ISSET((*it)->getFD(), &cp_readfds))
 			{
-				if ((bytes_read = recv((*it)->getFD(), buf, 32000, 0)) > 0 )
+				if ((bytes_read = recv((*it)->getFD(), buf, 100000, 0)) > 0 )
 				{
 					buf[bytes_read] = 0;
-//					std::cout << buf;
 					message += buf;
-					memset(buf, 0, sizeof(buf));
+					memset(buf, 0, 100001);
 				}
 				else if (bytes_read == 0)
 				{
@@ -83,21 +82,19 @@ void			Handler::serv(void)
 					break;
 				}
 				int s = 0;
+				bool isBrowser = false;
 				if ((s = message.find("\r\n\r\n")) != std::string::npos)
 				{
-					/*int s = 0;
-					if ((s = message.find("chunked")) != std::string::npos)
+					std::size_t body = 0;
+					if ((body = message.find("Content-Length")) != std::string::npos)
 					{
-						message.erase(s, 7);
-						break;
-					}*/
-					//else
-
-
-					if ((message.find("PUT") != std::string::npos ||
-					     message.find("POST") != std::string::npos) )
+						isBrowser = true;
+						body = strtoul(message.substr(body + 15, message.find("\r\n", body) - body).c_str(), 0, 0);
+					}
+					if ((message.substr(0, 5).find("PUT") != std::string::npos ||
+						message.substr(0, 5).find("POST") != std::string::npos) )
 					{
-						if ((message.substr(s + 4).find('\0') != std::string::npos) || (message.substr(s + 4).find("\r\n\r\n") != std::string::npos))
+						if ((isBrowser && (message.substr(s + 4).size() >= body)) || (message.substr(s + 4).find("\r\n\r\n") != std::string::npos))
 						{
 							FD_SET((*it)->getFD(), &writefds);
 							FD_CLR((*it)->getFD(), &readfds);
@@ -120,9 +117,9 @@ void			Handler::serv(void)
 
 				/*std::cout << "-------------------------------------------------------------------------" << std::endl;
 				std::cout << "\033[32m" << message << "\033[0m" << std::endl;*/
-				std::cout << "-------------------------------------------------------------------------" << std::endl;
+				/* std::cout << "-------------------------------------------------------------------------" << std::endl;
 				std::cout << "\033[36m" << (*it)->getMsg() << "\033[0m" << std::endl;
-				std::cout << "-------------------------------------------------------------------------" << std::endl;
+				std::cout << "-------------------------------------------------------------------------" << std::endl; */
 
 				message.clear();
 			}

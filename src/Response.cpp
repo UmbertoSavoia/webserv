@@ -190,7 +190,7 @@ void		Response::method_get()
 	{
 		Headers env;
 		env.headersCGI(header, client, server, uri);
-		CGI cgi(cgi_path, tmpURI, env.getHeaderCGI());
+		CGI cgi(cgi_path, tmpURI, env.getHeaderCGI(), header);
 		response = cgi.getStatus();
 		response += cgi.getOutput();
 		return ;
@@ -300,7 +300,7 @@ void		Response::method_post()
 	std::pair<std::string, bool> checkCGI = isCGI(server.getLocations(), header.find("uri")->second, tmpURI);
 	Headers env;
 	env.headersCGI(header, client, server, uri);
-	CGI cgi(cgi_path, uri, env.getHeaderCGI());
+	CGI cgi(cgi_path, uri, env.getHeaderCGI(), header);
 	response = cgi.getStatus();
 	response += cgi.getOutput();
 }

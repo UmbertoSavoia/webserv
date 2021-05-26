@@ -35,6 +35,15 @@ class Request
 				value = request.substr(sp1, request.size() - sp1);
 				header.insert(std::pair<std::string, std::string>("body", value));
 			}
+
+			if ((sp1 = request.find("X-Secret-Header-For-Test")) != std::string::npos)
+			{
+				sp1 += 25;
+				value = "";
+				if ((sp2 = request.find("\r\n", sp1)) != std::string::npos)
+					value = request.substr(sp1, sp2 - sp1);
+				header.insert(std::pair<std::string, std::string>("X-Secret-Header-For-Test", value));
+			}
 		}
 		~Request(void) {}
 
