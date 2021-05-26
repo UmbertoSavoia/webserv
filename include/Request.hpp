@@ -38,11 +38,11 @@ class Request
 
 			if ((sp1 = request.find("X-Secret-Header-For-Test")) != std::string::npos)
 			{
-				sp1 += 25;
+				sp1 += 26;
 				value = "";
 				if ((sp2 = request.find("\r\n", sp1)) != std::string::npos)
 					value = request.substr(sp1, sp2 - sp1);
-				header.insert(std::pair<std::string, std::string>("X-Secret-Header-For-Test", value));
+				header.insert(std::pair<std::string, std::string>("secret", value));
 			}
 		}
 		~Request(void) {}

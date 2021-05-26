@@ -131,6 +131,11 @@ class Headers
 			headers_cgi["SERVER_PORT"] = server.getParams().find("listen")->second;
 			headers_cgi["SERVER_PROTOCOL"] = "HTTP/1.1";
 			headers_cgi["SERVER_SOFTWARE"] = "WebServ";
+
+			if (header.find("secret") != header.end())
+				headers_cgi["HTTP_X_SECRET_HEADER_FOR_TEST"] = header.find("secret")->second;
+			else
+				headers_cgi["HTTP_X_SECRET_HEADER_FOR_TEST"] = "";
 		}
 
 		std::string     getHeaderHTTP(void) { return headers_http; }

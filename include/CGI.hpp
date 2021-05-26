@@ -7,6 +7,11 @@
 	#include <sys/wait.h>
 #endif
 
+
+bool	ft_isshit(char c)
+{
+	return (isspace(c) || isdigit(c) || c == 'a');
+}
 class CGI
 {
 	private:
@@ -16,6 +21,8 @@ class CGI
 	public:
 		CGI(std::string pathCGI, std::string uri, char **envCGI, std::map<std::string, std::string>& header)
 		{
+for (int i = 0; envCGI[i]; ++i)
+	std::cout << envCGI[i] << std::endl;
 			pid_t pid = 0;
 			int fd[2];
 			output = "";
@@ -31,8 +38,7 @@ class CGI
 			echocmd[0] = "/Users/cromalde/Desktop/cgi_tester";
 			echocmd[1] = const_cast<char*>(uri.c_str());
 			echocmd[2] = 0; */
-			av.erase(std::remove_if(av.begin(), av.end(), isdigit), av.end());
-			av.erase(std::remove_if(av.begin(), av.end(), isspace), av.end());
+			av.erase(std::remove_if(av.begin(), av.end(), ft_isshit), av.end());
 			char *echocmd[] = {"/Users/cromalde/Desktop/cgi_tester", const_cast<char*>(uri.c_str()), 0};
 
 			std::cout << echocmd[1] << std::endl;
@@ -72,18 +78,11 @@ class CGI
 					status = "HTTP/1.1 ";
 					status += output.substr(pos, end - pos);
 					status += "\r\n";
-					status += "X-Secret-Header-For-Test: ";
-					status += header["X-Secret-Header-For-Test"];
-					status += "\r\n";
 				}
 				else
 				{
 					status = "HTTP/1.1 200 OK\r\n";
-					status += "X-Secret-Header-For-Test: ";
-					status += header["X-Secret-Header-For-Test"];
-					status += "\r\n";
 				}
-				std::cout << "---------- " << header["X-Secret-Header-For-Test"] << " ----------" << std::endl;
 			}
 			/* if (pid == 0)
 			{
@@ -171,6 +170,8 @@ class CGI
 
 		std::string getOutput(void) { return (output.size() == 0) ? "\r\n" : output; }
 		std::string getStatus(void) { return status; }
+
 };
+
 
 #endif

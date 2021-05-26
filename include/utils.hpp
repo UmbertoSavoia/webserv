@@ -41,7 +41,6 @@
 #endif
 
 
-bool								ft_isspace(char c);
 std::pair<std::string, bool>		iskeywords(std::string src, std::string keywords[], int num);
 std::pair<std::string, std::string>	split_param(std::string src);
 std::string							getPath(std::string src, int pos);

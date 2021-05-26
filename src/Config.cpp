@@ -64,7 +64,7 @@ void	Config::parse(void)
 	{
 		if (content[pos] == '}')
 			++pos;
-		while (ft_isspace(content[pos]))	//skippa tutti i caratteri di spazio
+		while (isspace(content[pos]))	//skippa tutti i caratteri di spazio
 			++pos;
 		if (!content[pos])
 			break ;
@@ -73,7 +73,7 @@ void	Config::parse(void)
 		else
 			throw Config::ConfigException("No 'server' block found");
 
-		while (ft_isspace(content[pos]))
+		while (isspace(content[pos]))
 			++pos;
 
 		if ( content[pos] == '{' ) {
@@ -82,7 +82,7 @@ void	Config::parse(void)
 		else
 			 throw Config::ConfigException("No '{' after server keyword");
 
-		while (ft_isspace(content[pos]))
+		while (isspace(content[pos]))
 			++pos;
 
 		ret = iskeywords(content.substr(pos), keywords, 11);
@@ -97,7 +97,7 @@ void	Config::parse(void)
 			while (content[pos] != '\n')
 				++pos;
 
-			while (ft_isspace(content[pos]))
+			while (isspace(content[pos]))
 				++pos;
 			ret = iskeywords(content.substr(pos), keywords, 11);
 			if (ret.first == "location" && inServer == true)
@@ -107,12 +107,12 @@ void	Config::parse(void)
 				{
 					inLocation = true;
 					pos += 8;
-					while (ft_isspace(content[pos]))
+					while (isspace(content[pos]))
 						++pos;
 					Locations loc;
 					loc.getPath() = getPath(content, pos);
 					pos += loc.getPath().size();
-					while (ft_isspace(content[pos]) || content[pos] == '{')
+					while (isspace(content[pos]) || content[pos] == '{')
 						++pos;
 
 					ret = iskeywords(content.substr(pos), keywords, 11);
@@ -122,18 +122,18 @@ void	Config::parse(void)
 						loc.getLocations().insert(param);
 						while (content[pos] != '\n')
 							++pos;
-						while (ft_isspace(content[pos]))
+						while (isspace(content[pos]))
 							++pos;
 						ret = iskeywords(content.substr(pos), keywords, 11);
 					}
 					table[nServ].getLocations().push_back(loc);
-					while (inLocation && (ft_isspace(content[pos]) || content[pos] == '}'))
+					while (inLocation && (isspace(content[pos]) || content[pos] == '}'))
 					{
 						if (content[pos] == '}')
 							inLocation = false;
 						++pos;
 					}
-					while (ft_isspace(content[pos]))
+					while (isspace(content[pos]))
 						++pos;
 					ret = iskeywords(content.substr(pos), keywords, 11);
 				}
