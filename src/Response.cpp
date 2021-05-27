@@ -306,7 +306,6 @@ void		Response::method_post()
 		std::pair<std::string, bool> check = isBodySize(server.getLocations(), header.find("uri")->second);
 		if (check.second && stoull(env.getCGIbody_size()) > stoull(check.first))
 		{
-			std::cout << env.getCGIbody() << std::endl << std::endl;
 			body = errorPage("413", "Request Entity Too Large");
 			Headers rsp_header;
 			rsp_header.headersHTTP("413 Request Entity Too Large", body.size(), uri, 0);

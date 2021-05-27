@@ -163,7 +163,6 @@ class Headers
 		}
 
 		std::string		getCGIbody_size(void) { return headers_cgi["CONTENT_LENGTH"]; }
-		std::string		getCGIbody(void) { return headers_cgi["QUERY_STRING"]; }
 
 };
 

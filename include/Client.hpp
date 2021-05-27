@@ -9,21 +9,22 @@ class Client
 		int					fd;
 		int					serverFD;
 		struct sockaddr_in	client;
-		std::string			msg;
+		std::string			out_msg;
 		struct timeval		tv;
 		std::string         ip;
 
 	public:
-		Client(int serverFD) : fd(-1), serverFD(serverFD)
+		std::string			in_msg;
+		Client(int serverFD) : fd(-1), serverFD(serverFD), in_msg("")
 		{
 			memset(&client, 0, sizeof(client));
 			memset(&tv, 0, sizeof(tv));
 			gettimeofday(&tv, 0);
-			msg =	"";
+			out_msg =	"";
 		}
 		~Client()						{ close(fd); }
 		int				getFD()			{ return fd; }
-		std::string&	getMsg()		{ return msg; }
+		std::string&	getMsg()		{ return out_msg; }
 		int				get_time()		{ return tv.tv_sec; }
 		std::string     get_ip()        { return ip; }
 

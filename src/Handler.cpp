@@ -41,6 +41,7 @@ void			Handler::serv(void)
 	std::string			message = "";
 	int					bytes_read = 0;
 	int					serverIDX = 0;
+	bool 				isBrowser = false;
 	struct	timeval		tv;
 
 	while (1)
@@ -69,8 +70,9 @@ void			Handler::serv(void)
 				if ((bytes_read = recv((*it)->getFD(), buf, 100000, 0)) > 0 )
 				{
 					buf[bytes_read] = 0;
-					message += buf;
-					memset(buf, 0, 100001);
+					(*it)->in_msg += buf;
+					//message += buf;
+					//memset(buf, 0, 100001);
 				}
 				else if (bytes_read == 0)
 				{
@@ -82,19 +84,25 @@ void			Handler::serv(void)
 					break;
 				}
 				int s = 0;
-				bool isBrowser = false;
-				if ((s = message.find("\r\n\r\n")) != std::string::npos)
+				isBrowser = false;
+				//if ((s = message.find("\r\n\r\n")) != std::string::npos)
+				if ((s = (*it)->in_msg.find("\r\n\r\n")) != std::string::npos)
 				{
 					std::size_t body = 0;
-					if ((body = message.find("Content-Length")) != std::string::npos)
+					//if ((body = message.find("Content-Length")) != std::string::npos)
+					if ((body = (*it)->in_msg.find("Content-Length")) != std::string::npos)
 					{
 						isBrowser = true;
-						body = strtoul(message.substr(body + 15, message.find("\r\n", body) - body).c_str(), 0, 0);
+						//body = strtoul(message.substr(body + 15, message.find("\r\n", body) - body).c_str(), 0, 0);
+						body = strtoul((*it)->in_msg.substr(body + 15, (*it)->in_msg.find("\r\n", body) - body).c_str(), 0, 0);
 					}
-					if ((message.substr(0, 5).find("PUT") != std::string::npos ||
-						message.substr(0, 5).find("POST") != std::string::npos) )
+//					if ((message.substr(0, 5).find("PUT") != std::string::npos ||
+//						message.substr(0, 5).find("POST") != std::string::npos) )
+					if (((*it)->in_msg.substr(0, 5).find("PUT") != std::string::npos ||
+						(*it)->in_msg.substr(0, 5).find("POST") != std::string::npos) )
 					{
-						if ((isBrowser && (message.substr(s + 4).size() >= body)) || (message.substr(s + 4).find("\r\n\r\n") != std::string::npos))
+						//if ((isBrowser && (message.substr(s + 4).size() >= body)) || (message.substr(s + 4).find("\r\n\r\n") != std::string::npos))
+						if ((isBrowser && ((*it)->in_msg.substr(s + 4).size() >= body)) || ((*it)->in_msg.substr(s + 4).find("\r\n\r\n") != std::string::npos))
 						{
 							FD_SET((*it)->getFD(), &writefds);
 							FD_CLR((*it)->getFD(), &readfds);
@@ -109,18 +117,20 @@ void			Handler::serv(void)
 				}
 				else
 					break ;
-				Request req(message);
+			//	Request req(message);
+				Request req((*it)->in_msg);
 				std::string msg = "Client " + std::to_string((*it)->getFD()) + " had send a request";
 				log(msg);
 				Response response(req.getHeader(), (*servers)[serverIDX], *it);
 				(*it)->getMsg() = response.getResponse();
 
-				/* std::cout << "-------------------------------------------------------------------------" << std::endl;
+				std::cout << "-------------------------------------------------------------------------" << std::endl;
 				std::cout << "\033[32m" << message << "\033[0m" << std::endl;
 				std::cout << "-------------------------------------------------------------------------" << std::endl;
-				std::cout << "\033[36m" << (*it)->getMsg() << "\033[0m" << std::endl;
+			/*	std::cout << "\033[36m" << (*it)->getMsg() << "\033[0m" << std::endl;
 				std::cout << "-------------------------------------------------------------------------" << std::endl; */
-				message.clear();
+			//	message.clear();
+				(*it)->in_msg.clear();
 			}
 
 			if (FD_ISSET((*it)->getFD(), &cp_writefds))
