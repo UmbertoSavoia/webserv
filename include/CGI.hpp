@@ -30,8 +30,8 @@ class CGI
 				}
 			}
 //----------------------------------------------------------------------------------------------------------------------
-for(int i = 0; envCGI[i]; ++i)
-	std::cout << envCGI[i] << std::endl;
+/* for(int i = 0; envCGI[i]; ++i)
+	std::cout << envCGI[i] << std::endl; */
 //----------------------------------------------------------------------------------------------------------------------
 			char **echocmd = (char**)malloc(sizeof(char*) * 3);
 			echocmd[0] = const_cast<char*>(pathCGI.c_str());
@@ -41,7 +41,7 @@ for(int i = 0; envCGI[i]; ++i)
 /* for(int i = 0; echocmd[i]; ++i)
 	std::cout << echocmd[i] << std::endl; */
 //----------------------------------------------------------------------------------------------------------------------
-			av.erase(std::remove_if(av.begin(), av.end(), [](int c){return (isspace(c) || isdigit(c) || c == 'a');}), av.end());
+		//	av.erase(std::remove_if(av.begin(), av.end(), [](int c){return (isspace(c) || isdigit(c) || c == 'a');}), av.end());
 
 			size_t ret =0;
 			int fd_pezza3 = open("cgi.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
@@ -68,9 +68,9 @@ for(int i = 0; envCGI[i]; ++i)
 
 				while (read(fd_pezza2, &r, 1) > 0)
 					output += r;
-				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;
+/* 				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;
 				std::cout << ((output == "")? "OUTPUT: ZERO": output) << std::endl;
-				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;
+				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl; */
 				if ((pos = output.find("Status: ")) != std::string::npos)
 				{
 					pos += 8;

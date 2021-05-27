@@ -43,7 +43,7 @@ std::pair<std::string, bool>	Response::isMethod(std::vector<Locations>& location
 {
 	for (std::vector<Locations>::iterator it = locations.begin(); it != locations.end(); ++it)
 		if (((*it).getPath() == check.substr(0, (*it).getPath().size())) &&
-		    ((*it).getLocations().find("root") != (*it).getLocations().end()))
+			((*it).getLocations().find("root") != (*it).getLocations().end()))
 			if ((*it).getLocations().find("method_allowed") != (*it).getLocations().end())
 				return std::pair<std::string, bool>((*it).getLocations().find("method_allowed")->second, true);
 		if (server.getParams().find("method_allowed") != server.getParams().end())
@@ -293,6 +293,8 @@ void		Response::method_post()
 {
 	std::size_t pos = 0;
 	std::string tmpURI;
+	std::string body = "";
+
 	if ((pos = uri.find('?')) != std::string::npos)
 		tmpURI = uri.substr(0, pos);
 	else
@@ -300,6 +302,18 @@ void		Response::method_post()
 	std::pair<std::string, bool> checkCGI = isCGI(server.getLocations(), header.find("uri")->second, tmpURI);
 	Headers env;
 	env.headersCGI(header, client, server, uri);
+
+		std::pair<std::string, bool> check = isBodySize(server.getLocations(), header.find("uri")->second);
+		if (check.second && stoull(env.getCGIbody_size()) > stoull(check.first))
+		{
+			std::cout << env.getCGIbody() << std::endl << std::endl;
+			body = errorPage("413", "Request Entity Too Large");
+			Headers rsp_header;
+			rsp_header.headersHTTP("413 Request Entity Too Large", body.size(), uri, 0);
+			response = rsp_header.getHeaderHTTP();
+			response += body;
+			return ;
+		}
 	CGI cgi(cgi_path, uri, env.getHeaderCGI(), header);
 	response = cgi.getStatus();
 	response += cgi.getOutput();
