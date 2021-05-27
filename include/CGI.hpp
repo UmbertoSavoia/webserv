@@ -10,14 +10,14 @@
 class CGI
 {
 	private:
-		std::string                         output;
-		std::string                         status;
+		std::string	output;
+		std::string	status;
 
 	public:
 		CGI(std::string pathCGI, std::string uri, char **envCGI, std::map<std::string, std::string>& header)
 		{
 			pid_t pid = 0;
-			int fd[2];
+			Headers hds;
 			output = "";
 
 			std::string av = "";
@@ -57,10 +57,14 @@ class CGI
 				dup2(fd_pezza3, 0);
 				if (execve(echocmd[0], echocmd, envCGI) < 0)
 					std::cerr << "errore execve" << std::endl;
+				free(echocmd);
+				close(pezzatotale);
+				close(fd_pezza3);
 				exit(1);
 			}
 			else
 			{
+				free(echocmd);
 				wait(0);
 				int fd_pezza2 = open("out.txt", O_RDWR);
 				std::size_t pos = 0;
@@ -71,6 +75,7 @@ class CGI
 /* 				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;
 				std::cout << ((output == "")? "OUTPUT: ZERO": output) << std::endl;
 				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl; */
+				close(fd_pezza2);
 				if ((pos = output.find("Status: ")) != std::string::npos)
 				{
 					pos += 8;
@@ -84,6 +89,7 @@ class CGI
 					status = "HTTP/1.1 200 OK\r\n";
 				}
 			}
+			hds.cleanHeadersCGI(envCGI);
 		}
 		~CGI() {}
 

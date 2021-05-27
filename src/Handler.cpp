@@ -72,7 +72,7 @@ void			Handler::serv(void)
 					buf[bytes_read] = 0;
 					(*it)->in_msg += buf;
 					//message += buf;
-					//memset(buf, 0, 100001);
+					memset(buf, 0, 100001);
 				}
 				else if (bytes_read == 0)
 				{
@@ -124,10 +124,10 @@ void			Handler::serv(void)
 				Response response(req.getHeader(), (*servers)[serverIDX], *it);
 				(*it)->getMsg() = response.getResponse();
 
-				std::cout << "-------------------------------------------------------------------------" << std::endl;
+			/*	std::cout << "-------------------------------------------------------------------------" << std::endl;
 				std::cout << "\033[32m" << message << "\033[0m" << std::endl;
 				std::cout << "-------------------------------------------------------------------------" << std::endl;
-			/*	std::cout << "\033[36m" << (*it)->getMsg() << "\033[0m" << std::endl;
+				std::cout << "\033[36m" << (*it)->getMsg() << "\033[0m" << std::endl;
 				std::cout << "-------------------------------------------------------------------------" << std::endl; */
 			//	message.clear();
 				(*it)->in_msg.clear();
