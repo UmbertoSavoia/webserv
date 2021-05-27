@@ -31,6 +31,8 @@ Config::Config(const char* filePath)
 
 Config::~Config(void)
 {
+	// Print della config per DEBUG
+
 	/* for (std::size_t i = 0; i < table.size(); ++i)
 	{
 		std::cout << "Server: " << i + 1 << " - " << table[i].getautoindex() << std::endl;

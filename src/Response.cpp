@@ -2,6 +2,9 @@
 
 Response::Response(std::map<std::string, std::string> header, Server& server, Client* client) : header(header), server(server), client(client)
 {
+	error_page = "";
+	if (server.getParams().find("error_page") != server.getParams().end())
+		error_page = server.getParams().find("error_page")->second;
 	buildResponse();
 }
 
@@ -105,7 +108,7 @@ void		 Response::buildResponse(void)
 	{
 		std::string body = "";
 		Headers rsp_header;
-		body = errorPage("405", "Method not Allowed");
+		body = errorPage("405", "Method not Allowed", error_page);
 		rsp_header.headersHTTP("405 Method Not Allowed", body.size(), uri, 0);
 		response = rsp_header.getHeaderHTTP();
 		response += body;
@@ -190,7 +193,7 @@ void		Response::method_get()
 	{
 		Headers env;
 		env.headersCGI(header, client, server, uri);
-		CGI cgi(cgi_path, tmpURI, env.getHeaderCGI(), header);
+		CGI cgi(cgi_path, tmpURI, env.getHeaderCGI());
 		response = cgi.getStatus();
 		response += cgi.getOutput();
 		return ;
@@ -199,7 +202,7 @@ void		Response::method_get()
 
 	if (status == -1)
 	{
-		body = errorPage("404", "Page Not Found");
+		body = errorPage("404", "Page Not Found", error_page);
 		Headers rsp_header;
 		rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
 		response = rsp_header.getHeaderHTTP();
@@ -221,7 +224,7 @@ void		Response::method_get()
 		response += body;
 		if (fd == -1 || bytes == -1)
 		{
-			body = errorPage("404", "Page Not Found");
+			body = errorPage("404", "Page Not Found", error_page);
 			Headers rsp_header;
 			rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
 			response = rsp_header.getHeaderHTTP();
@@ -251,7 +254,7 @@ void		Response::method_get()
 				response += body;
 				if (fd == -1 || bytes == -1)
 				{
-					body = errorPage("404", "Page Not Found");
+					body = errorPage("404", "Page Not Found", error_page);
 					Headers rsp_header;
 					rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
 					response = rsp_header.getHeaderHTTP();
@@ -260,7 +263,7 @@ void		Response::method_get()
 			}
 			else
 			{
-				body = errorPage("404", "Page Not Found");
+				body = errorPage("404", "Page Not Found", error_page);
 				Headers rsp_header;
 				rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
 				response = rsp_header.getHeaderHTTP();
@@ -279,7 +282,7 @@ void		Response::method_get()
 			}
 			else	// errore 403 Forbidden
 			{
-				body = errorPage("403", "Forbidden");
+				body = errorPage("403", "Forbidden", error_page);
 				Headers rsp_header;
 				rsp_header.headersHTTP("403 Forbidden", body.size(), uri, 0);
 				response = rsp_header.getHeaderHTTP();
@@ -306,14 +309,14 @@ void		Response::method_post()
 		std::pair<std::string, bool> check = isBodySize(server.getLocations(), header.find("uri")->second);
 		if (check.second && stoull(env.getCGIbody_size()) > stoull(check.first))
 		{
-			body = errorPage("413", "Request Entity Too Large");
+			body = errorPage("413", "Request Entity Too Large", error_page);
 			Headers rsp_header;
 			rsp_header.headersHTTP("413 Request Entity Too Large", body.size(), uri, 0);
 			response = rsp_header.getHeaderHTTP();
 			response += body;
 			return ;
 		}
-	CGI cgi(cgi_path, uri, env.getHeaderCGI(), header);
+	CGI cgi(cgi_path, uri, env.getHeaderCGI());
 	response = cgi.getStatus();
 	response += cgi.getOutput();
 }
@@ -333,7 +336,7 @@ void		Response::method_put()
 		std::pair<std::string, bool> check = isBodySize(server.getLocations(), header.find("uri")->second);
 		if (check.second && stoull(header.find("content-lenght")->second) > stoull(check.first))
 		{
-			body = errorPage("413", "Request Entity Too Large");
+			body = errorPage("413", "Request Entity Too Large", error_page);
 			Headers rsp_header;
 			rsp_header.headersHTTP("413 Request Entity Too Large", body.size(), uri, 0);
 			response = rsp_header.getHeaderHTTP();
@@ -343,20 +346,16 @@ void		Response::method_put()
 	}
 	if ( (fd = open(uri.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0655)) > 2 )
 	{
-		//std::string body_header = header.find("body")->second;
-		/*std::cout << "=======================================" << std::endl;
-		std::cout << header.find("body")->second << std::endl;
-		std::cout << "=======================================" << std::endl;*/
+
 		Headers rsp_header;
 		rsp_header.headersHTTP((!existed) ? "201 Created" : "200 OK", body.size(), uri, 0);
 		response = rsp_header.getHeaderHTTP();
 
-		//write(fd, body_header.c_str(), body_header.size());
 		write(fd, header.find("body")->second.c_str(), header.find("body")->second.size());
 	}
 	else
 	{
-		body = errorPage("404", "Page Not Found");
+		body = errorPage("404", "Page Not Found", error_page);
 		Headers rsp_header;
 		rsp_header.headersHTTP("404 Not Found", body.size(), uri, 0);
 		response = rsp_header.getHeaderHTTP();

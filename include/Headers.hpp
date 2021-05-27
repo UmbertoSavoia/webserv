@@ -51,12 +51,12 @@ class Headers
 			headers_http += "Retry-After: 120\r\n";
 			headers_http += "Server: WebServer\r\n";
 			headers_http += "Transfer-Encoding: identity\r\n";
-			//www_authenticate = "Entrapureamicomio";  DA SISTEMARE QUANDO AVREMO ERRORE 401;
 			headers_http += "\r\n";
 		}
 
-		void    headersCGI(std::map<std::string, std::string>& header, Client* client, Server& server, std::string uri)
+		void	headersCGI(std::map<std::string, std::string>& header, Client* client, Server& server, std::string uri)
 		{
+			// META VARIABILI DA MANDARE AL CGI
 /*			AUTH_TYPE
 			CONTENT_LENGTH
 			CONTENT_TYPE
@@ -120,8 +120,8 @@ class Headers
 
 			headers_cgi["REMOTE_ADDR"] = client->get_ip();
 
-			headers_cgi["REMOTE_IDENT"] = ""; //auth
-			headers_cgi["REMOTE_USER"] = "";  //auth
+			headers_cgi["REMOTE_IDENT"] = "";
+			headers_cgi["REMOTE_USER"] = "";
 
 			headers_cgi["REQUEST_METHOD"] = header.find("method")->second;
 			headers_cgi["REQUEST_URI"] = header.find("uri")->second;
@@ -142,9 +142,9 @@ class Headers
 				headers_cgi["HTTP_X_SECRET_HEADER_FOR_TEST"] = "";
 		}
 
-		std::string     getHeaderHTTP(void) { return headers_http; }
+		std::string		getHeaderHTTP(void) { return headers_http; }
 
-		char**     getHeaderCGI(void)
+		char**		getHeaderCGI(void)
 		{
 			int i = 0;
 			char** ret = (char**)malloc(sizeof(char*) * (headers_cgi.size() + 1));
@@ -155,7 +155,7 @@ class Headers
 			return ret;
 		}
 
-		void       cleanHeadersCGI(char **headers)
+		void		cleanHeadersCGI(char **headers)
 		{
 			for (int i = 0; headers[i]; ++i)
 				free(headers[i]);

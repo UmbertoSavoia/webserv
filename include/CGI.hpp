@@ -14,7 +14,7 @@ class CGI
 		std::string	status;
 
 	public:
-		CGI(std::string pathCGI, std::string uri, char **envCGI, std::map<std::string, std::string>& header)
+		CGI(std::string pathCGI, std::string uri, char **envCGI)
 		{
 			pid_t pid = 0;
 			Headers hds;
@@ -25,11 +25,12 @@ class CGI
 			{
 				if (std::string(envCGI[i]).substr(0, 12) == "QUERY_STRING")
 				{
-					av = (strlen(envCGI[i]) < 14) ? strdup("") : strdup((std::string(envCGI[i]).substr(13).c_str()));
+					av = (strlen(envCGI[i]) < 14) ? "" : (std::string(envCGI[i]).substr(13).c_str());
+					free(envCGI[i]);
 					envCGI[i] = strdup("QUERY_STRING=") ;
 				}
 			}
-//----------------------------------------------------------------------------------------------------------------------
+//-----------------------Stampa dell' ENV CGI, DEBUG--------------------------------------------------------------------
 /* for(int i = 0; envCGI[i]; ++i)
 	std::cout << envCGI[i] << std::endl; */
 //----------------------------------------------------------------------------------------------------------------------
@@ -37,45 +38,46 @@ class CGI
 			echocmd[0] = const_cast<char*>(pathCGI.c_str());
 			echocmd[1] = const_cast<char*>(uri.c_str());
 			echocmd[2] = 0;
-//----------------------------------------------------------------------------------------------------------------------
+//-----------------------Stampa dell' ENV CGI, DEBUG--------------------------------------------------------------------
 /* for(int i = 0; echocmd[i]; ++i)
 	std::cout << echocmd[i] << std::endl; */
 //----------------------------------------------------------------------------------------------------------------------
-		//	av.erase(std::remove_if(av.begin(), av.end(), [](int c){return (isspace(c) || isdigit(c) || c == 'a');}), av.end());
 
 			size_t ret =0;
-			int fd_pezza3 = open("cgi.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
-			ret = write(fd_pezza3, av.c_str(), av.size());
-			close(fd_pezza3);
+			int inFile = open("cgi.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
+			ret = write(inFile, av.c_str(), av.size());
+			close(inFile);
 
 			pid = fork();
 			if (pid == 0)
 			{
-				fd_pezza3 = open("cgi.txt", O_RDONLY);
-				int pezzatotale = open("out.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
-				dup2(pezzatotale, 1);
-				dup2(fd_pezza3, 0);
+				inFile = open("cgi.txt", O_RDONLY);
+				int outFile = open("out.txt", O_RDWR | O_CREAT | O_TRUNC, 0666);
+				dup2(outFile, 1);
+				dup2(inFile, 0);
 				if (execve(echocmd[0], echocmd, envCGI) < 0)
 					std::cerr << "errore execve" << std::endl;
 				free(echocmd);
-				close(pezzatotale);
-				close(fd_pezza3);
+				close(outFile);
+				close(inFile);
 				exit(1);
 			}
 			else
 			{
 				free(echocmd);
 				wait(0);
-				int fd_pezza2 = open("out.txt", O_RDWR);
+				int outFile = open("out.txt", O_RDWR);
 				std::size_t pos = 0;
 				char r;
 
-				while (read(fd_pezza2, &r, 1) > 0)
+				while (read(outFile, &r, 1) > 0)
 					output += r;
-/* 				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;
+
+				// STAMPA OUTPUT CGI x DEBUG
+			/*	std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl;
 				std::cout << ((output == "")? "OUTPUT: ZERO": output) << std::endl;
 				std::cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-" << std::endl; */
-				close(fd_pezza2);
+				close(outFile);
 				if ((pos = output.find("Status: ")) != std::string::npos)
 				{
 					pos += 8;
@@ -95,8 +97,6 @@ class CGI
 
 		std::string getOutput(void) { return (output.size() == 0) ? "\r\n" : output; }
 		std::string getStatus(void) { return status; }
-
 };
-
 
 #endif

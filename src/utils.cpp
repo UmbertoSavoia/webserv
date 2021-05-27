@@ -67,11 +67,27 @@ void	trim(std::string &str)
 		str.erase(str.back());
 }
 
-std::string	errorPage(std::string numCode, std::string description)
+std::string	errorPage(std::string numCode, std::string description, std::string error_page)
 {
-	std::string ret = "	<html> <head></head> <body> <center> \
-						<h1> " + numCode + " <br> " + description + " </h1> \
-						</center> </body> </html> \r\n\r\n";
+	std::string ret = "";
+	if (error_page.size() > 0)
+	{
+		char buf[51] = {0};
+		int fd = open(error_page.c_str(), O_RDONLY);
+		int r = 0;
+		while ((r = read(fd, buf, 50)) > 0)
+		{
+			buf[r] = 0;
+			ret += buf;
+			memset(buf, 0, 51);
+		}
+	}
+	else
+	{
+		ret = "	<html> <head></head> <body> <center> \
+				<h1> " + numCode + " <br> " + description + " </h1> \
+				</center> </body> </html> \r\n\r\n";
+	}
 	return ret;
 }
 

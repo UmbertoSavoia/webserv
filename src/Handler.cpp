@@ -4,7 +4,7 @@ Handler::Handler(std::vector<Server>* servers) : servers(servers) {}
 
 Handler::~Handler(void)
 {
-	for (std::size_t i = 0; i < servers->size(); ++i)
+	/* for (std::size_t i = 0; i < servers->size(); ++i)
 	{
 		std::cout << "Server: " << i + 1 << " - " << (*servers)[i].getautoindex() << std::endl;
 		for (auto i : (*servers)[i].getParams())
@@ -15,7 +15,7 @@ Handler::~Handler(void)
 			for (auto k : j.getLocations())
 				std::cout << "\t\t\t" << k.first << " : " << k.second << std::endl;
 		}
-	}
+	} */
 }
 
 void			Handler::init(void)
@@ -38,7 +38,6 @@ void			Handler::init(void)
 void			Handler::serv(void)
 {
 	char				*buf = (char*)malloc(100000001);
-	std::string			message = "";
 	int					bytes_read = 0;
 	int					serverIDX = 0;
 	bool 				isBrowser = false;
@@ -71,7 +70,6 @@ void			Handler::serv(void)
 				{
 					buf[bytes_read] = 0;
 					(*it)->in_msg += buf;
-					//message += buf;
 					memset(buf, 0, 100001);
 				}
 				else if (bytes_read == 0)
@@ -83,25 +81,19 @@ void			Handler::serv(void)
 					log("Read error: Client disconnected");
 					break;
 				}
-				int s = 0;
+				std::size_t s = 0;
 				isBrowser = false;
-				//if ((s = message.find("\r\n\r\n")) != std::string::npos)
 				if ((s = (*it)->in_msg.find("\r\n\r\n")) != std::string::npos)
 				{
 					std::size_t body = 0;
-					//if ((body = message.find("Content-Length")) != std::string::npos)
 					if ((body = (*it)->in_msg.find("Content-Length")) != std::string::npos)
 					{
 						isBrowser = true;
-						//body = strtoul(message.substr(body + 15, message.find("\r\n", body) - body).c_str(), 0, 0);
 						body = strtoul((*it)->in_msg.substr(body + 15, (*it)->in_msg.find("\r\n", body) - body).c_str(), 0, 0);
 					}
-//					if ((message.substr(0, 5).find("PUT") != std::string::npos ||
-//						message.substr(0, 5).find("POST") != std::string::npos) )
 					if (((*it)->in_msg.substr(0, 5).find("PUT") != std::string::npos ||
 						(*it)->in_msg.substr(0, 5).find("POST") != std::string::npos) )
 					{
-						//if ((isBrowser && (message.substr(s + 4).size() >= body)) || (message.substr(s + 4).find("\r\n\r\n") != std::string::npos))
 						if ((isBrowser && ((*it)->in_msg.substr(s + 4).size() >= body)) || ((*it)->in_msg.substr(s + 4).find("\r\n\r\n") != std::string::npos))
 						{
 							FD_SET((*it)->getFD(), &writefds);
@@ -117,19 +109,19 @@ void			Handler::serv(void)
 				}
 				else
 					break ;
-			//	Request req(message);
 				Request req((*it)->in_msg);
 				std::string msg = "Client " + std::to_string((*it)->getFD()) + " had send a request";
 				log(msg);
 				Response response(req.getHeader(), (*servers)[serverIDX], *it);
 				(*it)->getMsg() = response.getResponse();
 
+				// STAMPA DELLA RICHIESTA E DELLA RISPOSTA, PER DEBUG
 			/*	std::cout << "-------------------------------------------------------------------------" << std::endl;
 				std::cout << "\033[32m" << message << "\033[0m" << std::endl;
 				std::cout << "-------------------------------------------------------------------------" << std::endl;
 				std::cout << "\033[36m" << (*it)->getMsg() << "\033[0m" << std::endl;
 				std::cout << "-------------------------------------------------------------------------" << std::endl; */
-			//	message.clear();
+
 				(*it)->in_msg.clear();
 			}
 

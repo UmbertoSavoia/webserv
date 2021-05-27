@@ -10,6 +10,8 @@ void		closeFDs(int)
 		close(it->getFd());
 	std::cout << "\b\b";
 	log("Shutting down servers...");
+	unlink("cgi.txt");
+	unlink("out.txt");
 	exit(0);
 }
 

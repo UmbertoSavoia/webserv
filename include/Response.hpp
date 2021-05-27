@@ -13,6 +13,7 @@ class Response
 		std::string							uri;
 		bool								autoidx;
 		std::string							cgi_path;
+		std::string							error_page;
 
 
 	public:

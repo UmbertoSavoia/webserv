@@ -3,7 +3,7 @@
 
 NAME		=	webserv
 CXX			=	clang++
-CXXFLAGS	=	-std=c++11 -g -fsanitize=address #-Wall -Wextra -Werror
+CXXFLAGS	=	-Wall -Wextra -Werror -std=c++11 #-g
 
 MKDIR		=	mkdir -p
 RM			=	rm -f
@@ -22,16 +22,20 @@ all: $(NAME)
 
 $(OBJ_DIR)/%.o : %.cpp
 	@$(MKDIR) $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	@printf "Compiling... %-33.33s\r\n"
 
 $(NAME): $(OBJ) $(HPP)
-	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
+	@$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
+	@echo "\033[0;32mCreating		Webserv\033[0;0m"
 
 clean:
-	$(RMDIR) $(OBJ_DIR)
+	@$(RMDIR) $(OBJ_DIR)
+	@echo "\033[0;31mCleaning		obj folder\033[0;0m"
 
 fclean: clean
-	$(RM) $(NAME)
+	@$(RM) $(NAME)
+	@echo "\033[0;31mRemoving		Webserv\033[0;0m"
 
 re: fclean all
 
